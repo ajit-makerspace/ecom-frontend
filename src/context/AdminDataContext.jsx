@@ -158,6 +158,24 @@ export function AdminDataProvider({ children }) {
     }
   };
 
+  const bulkImportCategories = async (categoriesArray) => {
+    try {
+      const res = await api.bulkImportCategories(categoriesArray);
+      if (res.success && Array.isArray(res.categories)) {
+        addToast('success', 'CSV Import Complete', res.message || `Imported ${res.categories.length} categories.`);
+        refreshData();
+        return res;
+      } else {
+        addToast('error', 'Import Failed', res.message || 'Bulk import failed.');
+        return res;
+      }
+    } catch (err) {
+      console.error('Failed to bulk import categories:', err);
+      addToast('error', 'Import Error', err.message || 'Failed to import categories.');
+      return { success: false, message: err.message };
+    }
+  };
+
   const updateCategory = async (id, categoryData) => {
     try {
       const res = await api.updateCategory(id, categoryData);
@@ -202,6 +220,40 @@ export function AdminDataProvider({ children }) {
     }
   };
 
+  const updateSubCategory = async (id, subCategoryData) => {
+    try {
+      const res = await api.updateSubCategory(id, subCategoryData);
+      if (res.success && res.subCategory) {
+        setSubCategories((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, ...res.subCategory } : s))
+        );
+        addToast('info', 'Sub-Category Updated', `Sub-category "${subCategoryData.name}" updated.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to update subcategory:', err);
+      addToast('error', 'Error', err.message || 'Failed to update subcategory.');
+    }
+  };
+
+  const bulkImportSubCategories = async (subCategoriesArray) => {
+    try {
+      const res = await api.bulkImportSubCategories(subCategoriesArray);
+      if (res.success && Array.isArray(res.subCategories)) {
+        addToast('success', 'CSV Import Complete', res.message || `Imported ${res.subCategories.length} sub-categories.`);
+        refreshData();
+        return res;
+      } else {
+        addToast('error', 'Import Failed', res.message || 'Bulk import failed.');
+        return res;
+      }
+    } catch (err) {
+      console.error('Failed to bulk import sub-categories:', err);
+      addToast('error', 'Import Error', err.message || 'Failed to import sub-categories.');
+      return { success: false, message: err.message };
+    }
+  };
+
   const deleteSubCategory = async (id) => {
     try {
       const res = await api.deleteSubCategory(id);
@@ -235,9 +287,12 @@ export function AdminDataProvider({ children }) {
         deleteProduct,
         updateOrderStatus,
         createCategory,
+        bulkImportCategories,
         updateCategory,
         deleteCategory,
         createSubCategory,
+        updateSubCategory,
+        bulkImportSubCategories,
         deleteSubCategory,
         addToast,
         removeToast,

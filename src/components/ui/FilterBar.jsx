@@ -6,10 +6,11 @@ import { Search, Filter, X, RotateCcw, ChevronDown } from 'lucide-react';
 export function FilterBar({
   searchValue = '',
   onSearchChange,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = '',
   selectFilters = [],
   onReset,
   showReset = false,
+  actions = null,
 }) {
   return (
     <div className="p-4 bg-slate-50/60 border-b border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
@@ -59,17 +60,20 @@ export function FilterBar({
         ))}
       </div>
 
-      {/* Reset Action */}
-      {showReset && onReset && (
-        <button
-          type="button"
-          onClick={onReset}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-100 font-semibold transition-all shrink-0"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Reset Filters</span>
-        </button>
-      )}
+      {/* Right Side Actions & Reset */}
+      <div className="flex items-center gap-3 shrink-0 ml-auto sm:ml-0">
+        {actions}
+        {showReset && onReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-100 font-semibold transition-all shrink-0"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset Filters</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

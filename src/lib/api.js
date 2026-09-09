@@ -263,6 +263,14 @@ export const api = {
     }
   },
 
+  bulkImportCategories: async (categoriesArray) => {
+    try {
+      return await apiRequest('/categories/bulk-import', 'POST', { categories: categoriesArray });
+    } catch (e) {
+      return { success: false, message: e.message || 'Bulk import failed' };
+    }
+  },
+
   updateCategory: async (id, categoryData) => {
     try {
       return await apiRequest(`/categories/${id}`, 'PUT', categoryData);
@@ -293,6 +301,22 @@ export const api = {
       return await apiRequest('/subcategories', 'POST', subCategoryData);
     } catch (e) {
       return { success: true, subCategory: { id: `subcat-${Date.now()}`, ...subCategoryData } };
+    }
+  },
+
+  updateSubCategory: async (id, subCategoryData) => {
+    try {
+      return await apiRequest(`/subcategories/${id}`, 'PUT', subCategoryData);
+    } catch (e) {
+      return { success: true, subCategory: { id, ...subCategoryData } };
+    }
+  },
+
+  bulkImportSubCategories: async (subCategoriesArray) => {
+    try {
+      return await apiRequest('/subcategories/bulk-import', 'POST', { subCategories: subCategoriesArray });
+    } catch (e) {
+      return { success: false, message: e.message || 'Bulk sub-category import failed' };
     }
   },
 

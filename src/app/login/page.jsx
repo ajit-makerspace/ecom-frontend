@@ -11,7 +11,6 @@ import {
   EyeOff,
   ShieldCheck,
   ArrowRight,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';
@@ -26,12 +25,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Pre-fill Super Admin Credentials
-  const fillSuperAdmin = () => {
-    setEmail('superadmin@aura.com');
-    setPassword('admin123');
-    setErrorMsg('');
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -84,7 +77,7 @@ export default function LoginPage() {
             Admin Portal Login
           </h1>
           <p className="text-xs text-slate-500">
-            Enter your Super Admin credentials to access store control panel.
+            Enter your Admin credentials to access store control panel.
           </p>
         </div>
 
@@ -178,31 +171,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Demo Fill Shortcut Card */}
-        <div className="pt-4 border-t border-slate-100 space-y-3">
-          <div className="p-3 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
-              <div className="text-[11px] truncate">
-                <span className="font-semibold text-slate-900 block">Super Admin Demo Credentials</span>
-                <span className="text-slate-500 font-mono text-[10px]">superadmin@aura.com / admin123</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={fillSuperAdmin}
-              className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[10px] shrink-0 transition-all shadow-xs"
-            >
-              Fill Credentials
-            </button>
-          </div>
-        </div>
-
         {/* Footer info */}
-        <p className="text-[10px] text-center text-slate-400">
-          Protected by JWT Role Authorization (user_type = 1 Super Admin)
-        </p>
       </div>
     </div>
   );

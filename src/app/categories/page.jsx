@@ -4,16 +4,18 @@ import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAdminData } from '@/context/AdminDataContext';
 import { AddCategoryModal } from '@/components/categories/AddCategoryModal';
+import { ImportCsvModal } from '@/components/categories/ImportCsvModal';
 import { DataTable } from '@/components/ui/DataTable';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
-import { Edit2, Trash2, Upload, FileText } from 'lucide-react';
+import { Edit2, Trash2, Upload, Download, FileText } from 'lucide-react';
 
 function CategoryListContent() {
   const searchParams = useSearchParams();
-  const { categories, createCategory, deleteCategory, updateCategory, addToast } = useAdminData();
+  const { categories, createCategory, bulkImportCategories, deleteCategory, updateCategory, addToast } = useAdminData();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
   // Delete Confirmation Modal State
@@ -50,62 +52,34 @@ function CategoryListContent() {
     setStatusFilter('ALL');
   };
 
-  // CSV Import Handler
-  const handleCsvUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Export Filtered Categories to CSV
+  const handleExportCsv = () => {
+    if (filteredCategories.length === 0) {
+      addToast('error', 'Export Warning', 'No categories available to export.');
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const text = event.target?.result;
-        if (typeof text !== 'string') return;
+    const headers = ['Category Name', 'Code', 'Status', 'Image URL'];
+    const rows = filteredCategories.map((cat, index) => {
+      const rawCode = String(cat.code || '').replace(/\D/g, '');
+      const formattedCode = rawCode.length === 4 ? rawCode : String(1001 + index).padStart(4, '0');
+      const name = `"${String(cat.name || '').replace(/"/g, '""')}"`;
+      const status = cat.status || 'Active';
+      const image = `"${String(cat.image || '').replace(/"/g, '""')}"`;
+      return `${name},${formattedCode},${status},${image}`;
+    });
 
-        const lines = text.split(/\r\n|\n/).filter((line) => line.trim());
-        if (lines.length <= 1) {
-          addToast('error', 'CSV Error', 'CSV file is empty or missing data rows.');
-          return;
-        }
+    const csvString = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `categories_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-        const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
-        const nameIdx = headers.findIndex((h) => h.includes('name') || h.includes('category'));
-        const codeIdx = headers.findIndex((h) => h.includes('code'));
-        const statusIdx = headers.findIndex((h) => h.includes('status'));
-        const imageIdx = headers.findIndex((h) => h.includes('image') || h.includes('url'));
-
-        let importedCount = 0;
-
-        for (let i = 1; i < lines.length; i++) {
-          const cols = lines[i].split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
-          const nameVal = nameIdx !== -1 ? cols[nameIdx] : cols[0];
-          if (!nameVal) continue;
-
-          const rawCode = codeIdx !== -1 ? cols[codeIdx].replace(/\D/g, '') : '';
-          const codeVal = rawCode.length === 4
-            ? rawCode
-            : Math.floor(1000 + Math.random() * 9000).toString();
-
-          const statusVal = statusIdx !== -1 && cols[statusIdx] ? cols[statusIdx] : 'Active';
-          const imageVal = imageIdx !== -1 && cols[imageIdx] ? cols[imageIdx].trim() : '';
-
-          await createCategory({
-            name: nameVal,
-            code: codeVal,
-            status: statusVal,
-            image: imageVal,
-          });
-
-          importedCount++;
-        }
-
-        addToast('success', 'CSV Import Successful', `Imported ${importedCount} categories successfully.`);
-      } catch (err) {
-        console.error('Error parsing CSV:', err);
-        addToast('error', 'Import Error', 'Failed to parse CSV file.');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
+    addToast('success', 'Export Successful', `Exported ${filteredCategories.length} categories to CSV.`);
   };
 
   // Filtered categories
@@ -231,19 +205,15 @@ function CategoryListContent() {
 
         <div className="flex items-center gap-3">
           {/* IMPORT CSV Button */}
-          <label
+          <button
+            type="button"
+            onClick={() => setIsCsvModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-white border border-slate-200/90 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-extrabold text-xs uppercase tracking-wider shadow-2xs cursor-pointer transition-all"
             title="Import Categories from CSV File"
           >
             <Upload className="w-4 h-4 text-slate-500" />
             <span>IMPORT CSV</span>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleCsvUpload}
-              className="hidden"
-            />
-          </label>
+          </button>
 
           {/* ADD CATEGORY Button */}
           <button
@@ -263,7 +233,6 @@ function CategoryListContent() {
         <FilterBar
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
-          searchPlaceholder="Search category name or 4-digit code (e.g. Fashion, 1001)..."
           selectFilters={[
             {
               id: 'status',
@@ -276,6 +245,17 @@ function CategoryListContent() {
               ],
             },
           ]}
+          actions={
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-extrabold text-xs uppercase tracking-wider shadow-2xs cursor-pointer transition-all"
+              title="Export filtered categories to CSV file"
+            >
+              <Download className="w-4 h-4 text-slate-500" />
+              <span>EXPORT CSV</span>
+            </button>
+          }
           showReset={Boolean(searchTerm || statusFilter !== 'ALL')}
           onReset={handleResetFilters}
         />
@@ -300,6 +280,14 @@ function CategoryListContent() {
           setEditingCategory(null);
         }}
         editCategory={editingCategory}
+      />
+
+      {/* Bulk Import CSV Modal */}
+      <ImportCsvModal
+        isOpen={isCsvModalOpen}
+        onClose={() => setIsCsvModalOpen(false)}
+        type="category"
+        onImport={bulkImportCategories}
       />
 
       {/* Delete Confirmation Popup Modal */}

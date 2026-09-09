@@ -4,16 +4,19 @@ import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAdminData } from '@/context/AdminDataContext';
 import { AddSubCategoryModal } from '@/components/categories/AddSubCategoryModal';
+import { ImportCsvModal } from '@/components/categories/ImportCsvModal';
 import { DataTable } from '@/components/ui/DataTable';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
-import { Trash2, Upload, FileText } from 'lucide-react';
+import { Edit2, Trash2, Upload, Download, FileText } from 'lucide-react';
 
 function SubCategoryListContent() {
   const searchParams = useSearchParams();
-  const { subCategories, createSubCategory, deleteSubCategory, addToast } = useAdminData();
+  const { subCategories, createSubCategory, bulkImportSubCategories, deleteSubCategory, updateSubCategory, addToast } = useAdminData();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [editingSubCategory, setEditingSubCategory] = useState(null);
 
   // Delete Confirmation Modal State
   const [deletingSubCategory, setDeletingSubCategory] = useState(null);
@@ -39,68 +42,45 @@ function SubCategoryListContent() {
     }
   };
 
+  const handleEdit = (sub) => {
+    setEditingSubCategory(sub);
+    setIsAddModalOpen(true);
+  };
+
   const handleResetFilters = () => {
     setSearchTerm('');
     setStatusFilter('ALL');
   };
 
-  const handleCsvUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Export Filtered Sub-Categories to CSV
+  const handleExportCsv = () => {
+    if (filteredSubCategories.length === 0) {
+      addToast('error', 'Export Warning', 'No sub-categories available to export.');
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const text = event.target?.result;
-        if (typeof text !== 'string') return;
+    const headers = ['Sub Category Name', 'Parent Category', 'Code', 'Status', 'Image URL'];
+    const rows = filteredSubCategories.map((sub, index) => {
+      const rawCode = String(sub.code || '').replace(/\D/g, '');
+      const formattedCode = rawCode.length === 4 ? rawCode : String(2001 + index).padStart(4, '0');
+      const name = `"${String(sub.name || '').replace(/"/g, '""')}"`;
+      const parentName = `"${String(sub.categoryName || 'General').replace(/"/g, '""')}"`;
+      const status = sub.status || 'Active';
+      const image = `"${String(sub.image || '').replace(/"/g, '""')}"`;
+      return `${name},${parentName},${formattedCode},${status},${image}`;
+    });
 
-        const lines = text.split(/\r\n|\n/).filter((line) => line.trim());
-        if (lines.length <= 1) {
-          addToast('error', 'CSV Error', 'CSV file is empty.');
-          return;
-        }
+    const csvString = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `sub_categories_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-        const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
-        const nameIdx = headers.findIndex((h) => h.includes('sub') || h.includes('name'));
-        const parentIdx = headers.findIndex((h) => h.includes('parent') || h.includes('category'));
-        const codeIdx = headers.findIndex((h) => h.includes('code'));
-        const statusIdx = headers.findIndex((h) => h.includes('status'));
-        const imageIdx = headers.findIndex((h) => h.includes('image') || h.includes('url'));
-
-        let importedCount = 0;
-
-        for (let i = 1; i < lines.length; i++) {
-          const cols = lines[i].split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
-          const nameVal = nameIdx !== -1 ? cols[nameIdx] : cols[0];
-          if (!nameVal) continue;
-
-          const parentVal = parentIdx !== -1 && cols[parentIdx] ? cols[parentIdx] : 'General';
-          const rawCode = codeIdx !== -1 ? cols[codeIdx].replace(/\D/g, '') : '';
-          const codeVal = rawCode.length === 4
-            ? rawCode
-            : Math.floor(2000 + Math.random() * 8000).toString();
-          const statusVal = statusIdx !== -1 && cols[statusIdx] ? cols[statusIdx] : 'Active';
-          const imageVal = imageIdx !== -1 && cols[imageIdx] ? cols[imageIdx].trim() : '';
-
-          await createSubCategory({
-            name: nameVal,
-            categoryName: parentVal,
-            code: codeVal,
-            status: statusVal,
-            image: imageVal,
-          });
-
-          importedCount++;
-        }
-
-        addToast('success', 'CSV Import Successful', `Imported ${importedCount} sub-categories successfully.`);
-      } catch (err) {
-        console.error('Error parsing CSV:', err);
-        addToast('error', 'Import Error', 'Failed to parse CSV file.');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
+    addToast('success', 'Export Successful', `Exported ${filteredSubCategories.length} sub-categories to CSV.`);
   };
 
   const filteredSubCategories = useMemo(() => {
@@ -206,6 +186,13 @@ function SubCategoryListContent() {
       render: (sub) => (
         <div className="flex items-center justify-end gap-3 text-slate-500">
           <button
+            onClick={() => handleEdit(sub)}
+            className="p-1 hover:text-blue-600 transition-colors"
+            title="Edit Sub Category"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => handleDeleteClick(sub)}
             className="p-1 hover:text-rose-600 transition-colors"
             title="Delete Sub Category"
@@ -226,22 +213,22 @@ function SubCategoryListContent() {
         </h1>
 
         <div className="flex items-center gap-3">
-          <label
+          {/* IMPORT CSV Button */}
+          <button
+            type="button"
+            onClick={() => setIsCsvModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-white border border-slate-200/90 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-extrabold text-xs uppercase tracking-wider shadow-2xs cursor-pointer transition-all"
             title="Import Sub-Categories from CSV File"
           >
             <Upload className="w-4 h-4 text-slate-500" />
             <span>IMPORT CSV</span>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleCsvUpload}
-              className="hidden"
-            />
-          </label>
+          </button>
 
           <button
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => {
+              setEditingSubCategory(null);
+              setIsAddModalOpen(true);
+            }}
             className="px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-extrabold text-xs uppercase tracking-wider shadow-sm transition-all"
           >
             ADD SUB CATEGORY
@@ -254,7 +241,6 @@ function SubCategoryListContent() {
         <FilterBar
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
-          searchPlaceholder="Search subcategory name, parent, or code..."
           selectFilters={[
             {
               id: 'status',
@@ -267,6 +253,17 @@ function SubCategoryListContent() {
               ],
             },
           ]}
+          actions={
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-extrabold text-xs uppercase tracking-wider shadow-2xs cursor-pointer transition-all"
+              title="Export filtered sub-categories to CSV file"
+            >
+              <Download className="w-4 h-4 text-slate-500" />
+              <span>EXPORT CSV</span>
+            </button>
+          }
           showReset={Boolean(searchTerm || statusFilter !== 'ALL')}
           onReset={handleResetFilters}
         />
@@ -286,7 +283,19 @@ function SubCategoryListContent() {
       {/* Add Sub Category Modal */}
       <AddSubCategoryModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingSubCategory(null);
+        }}
+        editSubCategory={editingSubCategory}
+      />
+
+      {/* Bulk Import CSV Modal */}
+      <ImportCsvModal
+        isOpen={isCsvModalOpen}
+        onClose={() => setIsCsvModalOpen(false)}
+        type="sub-category"
+        onImport={bulkImportSubCategories}
       />
 
       {/* Delete Confirmation Popup Modal */}

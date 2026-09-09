@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
 export function DataTable({
@@ -8,11 +8,16 @@ export function DataTable({
   data = [],
   keyExtractor = (item, index) => item.id || index,
   emptyMessage = 'No data available.',
-  initialRowsPerPage = 10,
-  rowsPerPageOptions = [10, 20, 50],
+  initialRowsPerPage = 8,
+  rowsPerPageOptions = [8, 16, 24, 50],
 }) {
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 if dataset length changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data.length]);
 
   const totalRows = data.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
@@ -88,7 +93,7 @@ export function DataTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="py-3.5 px-6 bg-white border-t border-slate-100 flex items-center justify-end gap-6 text-xs text-slate-600 font-medium">
+      <div className="py-3.5 px-6 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600 font-medium select-none">
         {/* Rows per page */}
         <div className="flex items-center gap-2">
           <span>Rows per page:</span>
@@ -96,7 +101,7 @@ export function DataTable({
             <select
               value={rowsPerPage}
               onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
-              className="appearance-none bg-transparent pl-2 pr-6 py-1 font-semibold text-slate-800 cursor-pointer focus:outline-none"
+              className="appearance-none bg-slate-50 border border-slate-200 rounded-md pl-2.5 pr-7 py-1 font-semibold text-slate-800 cursor-pointer focus:outline-none focus:border-blue-600"
             >
               {rowsPerPageOptions.map((opt) => (
                 <option key={opt} value={opt}>
@@ -104,40 +109,48 @@ export function DataTable({
                 </option>
               ))}
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
-        {/* Page Range */}
-        <div>
-          {totalRows > 0
-            ? `${startIndex + 1}-${Math.min(
-                startIndex + rowsPerPage,
-                totalRows
-              )} of ${totalRows}`
-            : '0 of 0'}
-        </div>
+        {/* Page Range & Next/Previous Controls */}
+        <div className="flex items-center gap-4">
+          <span className="text-slate-500 font-medium">
+            {totalRows > 0
+              ? `${startIndex + 1}-${Math.min(
+                  startIndex + rowsPerPage,
+                  totalRows
+                )} of ${totalRows}`
+              : '0 of 0'}
+          </span>
 
-        {/* Next / Previous Buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
-            title="Previous Page"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
-            title="Next Page"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50 active:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs"
+              title="Previous Page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Previous</span>
+            </button>
+
+            <span className="px-2 font-bold text-slate-700 min-w-[60px] text-center">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50 active:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs"
+              title="Next Page"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
