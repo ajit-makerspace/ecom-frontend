@@ -1,0 +1,17 @@
+import './globals.css';
+import { AdminLayout } from '@/components/layout/AdminLayout';
+
+export const metadata = {
+  title: 'AuraAdmin - E-Commerce Admin Dashboard',
+  description: 'Next.js modern e-commerce management dashboard frontend',
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased bg-slate-50 font-sans text-slate-900">
+        <AdminLayout>{children}</AdminLayout>
+      </body>
+    </html>
+  );
+}

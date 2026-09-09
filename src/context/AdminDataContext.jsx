@@ -1,0 +1,257 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { api } from '../lib/api';
+
+const AdminDataContext = createContext(undefined);
+
+export function AdminDataProvider({ children }) {
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [toasts, setToasts] = useState([]);
+  const [globalSearch, setGlobalSearch] = useState('');
+
+  const addToast = (type, title, message) => {
+    const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+    setToasts((prev) => [...prev, { id, type, title, message }]);
+
+    // Auto dismiss after 4 seconds
+    setTimeout(() => {
+      removeToast(id);
+    }, 4000);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Fetch all backend data from Express API
+  const refreshData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const [prodRes, orderRes, custRes, catRes, subCatRes, analyticsRes] = await Promise.allSettled([
+        api.getProducts(),
+        api.getOrders(),
+        api.getCustomers(),
+        api.getCategories(),
+        api.getSubCategories(),
+        api.getDashboardAnalytics(),
+      ]);
+
+      if (prodRes.status === 'fulfilled' && prodRes.value.success) {
+        setProducts(prodRes.value.products || []);
+      }
+
+      if (orderRes.status === 'fulfilled' && orderRes.value.success) {
+        setOrders(orderRes.value.orders || []);
+      }
+
+      if (custRes.status === 'fulfilled' && custRes.value.success) {
+        setCustomers(custRes.value.customers || []);
+      }
+
+      if (catRes.status === 'fulfilled' && catRes.value.success) {
+        setCategories(catRes.value.categories || []);
+      }
+
+      if (subCatRes.status === 'fulfilled' && subCatRes.value.success) {
+        setSubCategories(subCatRes.value.subCategories || []);
+      }
+
+      if (analyticsRes.status === 'fulfilled' && analyticsRes.value.success) {
+        setAnalytics(analyticsRes.value);
+      }
+    } catch (err) {
+      console.error('Error fetching admin backend data:', err);
+      addToast('error', 'Sync Warning', 'Could not load live data from backend server.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
+  // Backend Mutation Actions
+  const addProduct = async (productData) => {
+    try {
+      const res = await api.createProduct(productData);
+      if (res.success && res.product) {
+        setProducts((prev) => [res.product, ...prev]);
+        addToast('success', 'Product Created', `"${res.product.name}" was created successfully.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to create product:', err);
+      addToast('error', 'Error', err.message || 'Failed to create product.');
+    }
+  };
+
+  const updateProduct = async (id, updatedData) => {
+    try {
+      const res = await api.updateProduct(id, updatedData);
+      if (res.success && res.product) {
+        setProducts((prev) =>
+          prev.map((prod) => (prod.id === id || prod.dbId === res.product.dbId ? res.product : prod))
+        );
+        addToast('info', 'Product Updated', `Product ${id} has been updated.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to update product:', err);
+      addToast('error', 'Error', err.message || 'Failed to update product.');
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      const target = products.find((p) => p.id === id);
+      const res = await api.deleteProduct(id);
+      if (res.success) {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        addToast('warning', 'Product Removed', `"${target?.name || id}" was deleted.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+      addToast('error', 'Error', err.message || 'Failed to delete product.');
+    }
+  };
+
+  const updateOrderStatus = async (orderId, status) => {
+    try {
+      const res = await api.updateOrderStatus(orderId, status);
+      if (res.success) {
+        setOrders((prev) =>
+          prev.map((order) =>
+            order.id === orderId ? { ...order, status, paymentStatus: res.order.paymentStatus } : order
+          )
+        );
+        addToast('info', 'Order Status Updated', `Order ${orderId} status changed to ${status}.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+      addToast('error', 'Error', err.message || 'Failed to update order status.');
+    }
+  };
+
+  const createCategory = async (categoryData) => {
+    try {
+      const res = await api.createCategory(categoryData);
+      if (res.success && res.category) {
+        setCategories((prev) => [...prev, res.category]);
+        addToast('success', 'Category Created', `"${res.category.name}" created.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to create category:', err);
+      addToast('error', 'Error', err.message || 'Failed to create category.');
+    }
+  };
+
+  const updateCategory = async (id, categoryData) => {
+    try {
+      const res = await api.updateCategory(id, categoryData);
+      if (res.success && res.category) {
+        setCategories((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, ...res.category } : c))
+        );
+        addToast('info', 'Category Updated', `Category "${categoryData.name}" updated.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to update category:', err);
+      addToast('error', 'Error', err.message || 'Failed to update category.');
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    try {
+      const res = await api.deleteCategory(id);
+      if (res.success) {
+        setCategories((prev) => prev.filter((c) => c.id !== id));
+        addToast('warning', 'Category Deleted', 'Category was removed.');
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to delete category:', err);
+      addToast('error', 'Error', err.message || 'Failed to delete category.');
+    }
+  };
+
+  const createSubCategory = async (subCategoryData) => {
+    try {
+      const res = await api.createSubCategory(subCategoryData);
+      if (res.success && res.subCategory) {
+        setSubCategories((prev) => [...prev, res.subCategory]);
+        addToast('success', 'Sub-Category Created', `"${res.subCategory.name}" created.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to create subcategory:', err);
+      addToast('error', 'Error', err.message || 'Failed to create subcategory.');
+    }
+  };
+
+  const deleteSubCategory = async (id) => {
+    try {
+      const res = await api.deleteSubCategory(id);
+      if (res.success) {
+        setSubCategories((prev) => prev.filter((s) => s.id !== id));
+        addToast('warning', 'Sub-Category Deleted', 'Sub-category was removed.');
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to delete subcategory:', err);
+      addToast('error', 'Error', err.message || 'Failed to delete subcategory.');
+    }
+  };
+
+  return (
+    <AdminDataContext.Provider
+      value={{
+        products,
+        orders,
+        customers,
+        categories,
+        subCategories,
+        analytics,
+        loading,
+        toasts,
+        globalSearch,
+        setGlobalSearch,
+        refreshData,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        updateOrderStatus,
+        createCategory,
+        updateCategory,
+        deleteCategory,
+        createSubCategory,
+        deleteSubCategory,
+        addToast,
+        removeToast,
+      }}
+    >
+      {children}
+    </AdminDataContext.Provider>
+  );
+}
+
+export function useAdminData() {
+  const context = useContext(AdminDataContext);
+  if (!context) {
+    throw new Error('useAdminData must be used within an AdminDataProvider');
+  }
+  return context;
+}
