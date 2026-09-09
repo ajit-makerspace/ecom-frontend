@@ -6,7 +6,7 @@ import { UploadCloud, Link as LinkIcon, FileText, X, ExternalLink } from 'lucide
 export function FileUploadInput({
   value = '',
   onChange,
-  label = 'Category Image / File (PNG, JPG, JPEG, PDF, etc.)',
+  label = 'Category Image (PNG, JPG, JPEG, PDF, etc.)',
   accept = 'image/*,.pdf',
   placeholder = 'https://...',
 }) {

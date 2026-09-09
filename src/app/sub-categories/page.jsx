@@ -127,8 +127,8 @@ function SubCategoryListContent() {
   const columns = [
     {
       key: 'image',
-      header: 'IMAGE / FILE',
-      width: '90px',
+      header: 'IMAGE',
+      width: '80px',
       render: (sub) => {
         if (!sub.image || !sub.image.trim()) {
           return <span className="text-slate-400 text-xs font-semibold px-2">—</span>;

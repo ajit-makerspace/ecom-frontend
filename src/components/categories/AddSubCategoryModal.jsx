@@ -82,7 +82,7 @@ export function AddSubCategoryModal({ isOpen, onClose }) {
         <FileUploadInput
           value={imageUrl}
           onChange={setImageUrl}
-          label="Sub Category Image / File (PNG, JPG, JPEG, PDF, etc.)"
+          label="Sub Category Image (PNG, JPG, JPEG, PDF, etc.)"
         />
 
         <div className="pt-4 border-t border-slate-100 flex justify-end gap-2.5">

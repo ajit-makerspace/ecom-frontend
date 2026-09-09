@@ -119,7 +119,7 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
         <FileUploadInput
           value={imageUrl}
           onChange={setImageUrl}
-          label="Category Image / File (PNG, JPG, JPEG, PDF, etc.)"
+          label="Category Image (PNG, JPG, JPEG, PDF, etc.)"
         />
 
         <div className="pt-4 border-t border-slate-100 flex justify-end gap-2.5">

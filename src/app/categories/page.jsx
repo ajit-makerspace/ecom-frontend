@@ -133,8 +133,8 @@ function CategoryListContent() {
   const columns = [
     {
       key: 'image',
-      header: 'IMAGE / FILE',
-      width: '90px',
+      header: 'IMAGE',
+      width: '80px',
       render: (cat) => {
         if (!cat.image || !cat.image.trim()) {
           return <span className="text-slate-400 text-xs font-semibold px-2">—</span>;

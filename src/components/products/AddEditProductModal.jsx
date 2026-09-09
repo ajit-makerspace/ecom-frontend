@@ -189,7 +189,7 @@ export function AddEditProductModal({ isOpen, onClose, productToEdit }) {
         <FileUploadInput
           value={image}
           onChange={setImage}
-          label="Product Image / File (PNG, JPG, JPEG, PDF, etc.)"
+          label="Product Image (PNG, JPG, JPEG, PDF, etc.)"
         />
 
         {/* Description */}
