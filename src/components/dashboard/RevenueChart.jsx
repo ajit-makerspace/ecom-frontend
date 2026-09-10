@@ -87,7 +87,7 @@ export function RevenueChart() {
               tickLine={false}
               axisLine={false}
               className="text-[11px] font-medium fill-slate-400"
-              tickFormatter={(v) => `$${v / 1000}k`}
+              tickFormatter={(v) => `₹${v / 1000}k`}
             />
 
             <Tooltip

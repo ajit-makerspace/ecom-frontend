@@ -5,16 +5,18 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount, currency = 'USD') {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(amount, currency = 'INR') {
+  const numericAmount = parseFloat(amount) || 0;
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 2,
-  }).format(amount);
+    maximumFractionDigits: 2,
+  }).format(numericAmount);
 }
 
 export function formatNumber(value) {
-  return new Intl.NumberFormat('en-US').format(value);
+  return new Intl.NumberFormat('en-IN').format(value || 0);
 }
 
 export function getStatusBadgeStyle(status) {
@@ -60,4 +62,22 @@ export function getStatusBadgeStyle(status) {
         dot: 'bg-slate-500',
       };
   }
+}
+
+/**
+ * Reusable SKU Generator Function
+ * Format: categorycode-subcategorycode-productname
+ * Example: 1001-2001-WIRELESS-HEADPHONES
+ */
+export function generateSku(categoryCode, subCategoryCode, productName) {
+  const catCode = String(categoryCode || '1000').trim().toUpperCase().replace(/[^\w]/g, '');
+  const subCode = String(subCategoryCode || '0000').trim().toUpperCase().replace(/[^\w]/g, '');
+  const nameClean = String(productName || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return `${catCode}-${subCode}-${nameClean}`;
 }

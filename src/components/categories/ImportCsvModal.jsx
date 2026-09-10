@@ -7,7 +7,7 @@ import { UploadCloud, Download, CheckCircle2, AlertTriangle, FileSpreadsheet, X,
 export function ImportCsvModal({
   isOpen,
   onClose,
-  type = 'category', // 'category' | 'sub-category'
+  type = 'category', // 'product' | 'category' | 'sub-category'
   onImport,
 }) {
   const [file, setFile] = useState(null);
@@ -16,9 +16,18 @@ export function ImportCsvModal({
   const [errorMsg, setErrorMsg] = useState('');
   const fileInputRef = useRef(null);
 
+  const isProduct = type === 'product';
   const isSubCategory = type === 'sub-category';
-  const title = isSubCategory ? 'Bulk Import Sub-Categories' : 'Bulk Import Categories';
-  const subtitle = isSubCategory
+
+  const title = isProduct
+    ? 'Bulk Import Products'
+    : isSubCategory
+    ? 'Bulk Import Sub-Categories'
+    : 'Bulk Import Categories';
+
+  const subtitle = isProduct
+    ? 'Upload a CSV file to bulk import products with prices, SKUs, categories, and brands.'
+    : isSubCategory
     ? 'Upload a CSV file to import multiple sub-categories into your catalog at once.'
     : 'Upload a CSV file to bulk import main categories with codes, status, and images.';
 
@@ -27,7 +36,13 @@ export function ImportCsvModal({
     let csvContent = '';
     let filename = '';
 
-    if (isSubCategory) {
+    if (isProduct) {
+      csvContent = `Product Name,SKU,Category,Sub Category,Brand,Price,Old Price,Weight,Status,Image URL\n` +
+        `Wireless Headphones,1001-2001-HEADPHONE,Electronics,Audio,Aura,99.99,129.99,0.350,Active,https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300\n` +
+        `Ergonomic Desk Chair,1003-2005-DESK-CHAIR,Home & Living,Furniture,Ergo,199.00,249.00,12.500,Active,https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=300\n` +
+        `Smart Watch Pro,1002-2003-SMART-WATCH,Electronics,Gadgets,TechCorp,249.99,,0.150,Active,\n`;
+      filename = 'products_import_sample.csv';
+    } else if (isSubCategory) {
       csvContent = `Sub Category Name,Parent Category,Code,Status,Image URL\n` +
         `Men's Wear,Fashion,2001,Active,https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300\n` +
         `Laptops,Electronics,2002,Active,https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300\n` +
@@ -80,7 +95,14 @@ export function ImportCsvModal({
 
     const headers = parseRow(lines[0]).map((h) => h.toLowerCase());
 
-    const nameIdx = headers.findIndex((h) => h.includes('sub') || h.includes('name') || h.includes('category'));
+    const nameIdx = headers.findIndex((h) => h.includes('product') || h.includes('name') || h.includes('title'));
+    const skuIdx = headers.findIndex((h) => h.includes('sku'));
+    const catIdx = headers.findIndex((h) => h === 'category' || h.includes('main category') || h.includes('parent'));
+    const subCatIdx = headers.findIndex((h) => h.includes('sub category') || h.includes('subcategory'));
+    const brandIdx = headers.findIndex((h) => h.includes('brand'));
+    const priceIdx = headers.findIndex((h) => h.includes('price') && !h.includes('old'));
+    const oldPriceIdx = headers.findIndex((h) => h.includes('old'));
+    const weightIdx = headers.findIndex((h) => h.includes('weight'));
     const parentIdx = headers.findIndex((h) => h.includes('parent') || h.includes('main'));
     const codeIdx = headers.findIndex((h) => h.includes('code'));
     const statusIdx = headers.findIndex((h) => h.includes('status'));
@@ -97,7 +119,28 @@ export function ImportCsvModal({
       const statusVal = statusIdx !== -1 && cols[statusIdx] ? cols[statusIdx] : 'Active';
       const imageVal = imageIdx !== -1 && cols[imageIdx] ? cols[imageIdx] : '';
 
-      if (isSubCategory) {
+      if (isProduct) {
+        const skuVal = skuIdx !== -1 ? cols[skuIdx] : '';
+        const catVal = catIdx !== -1 ? cols[catIdx] : 'General';
+        const subCatVal = subCatIdx !== -1 ? cols[subCatIdx] : '';
+        const brandVal = brandIdx !== -1 ? cols[brandIdx] : '';
+        const priceVal = priceIdx !== -1 ? parseFloat(cols[priceIdx]) || 0 : 0;
+        const oldPriceVal = oldPriceIdx !== -1 && cols[oldPriceIdx] ? parseFloat(cols[oldPriceIdx]) : null;
+        const weightVal = weightIdx !== -1 && cols[weightIdx] ? parseFloat(cols[weightIdx]) : null;
+
+        items.push({
+          name: nameVal,
+          sku: skuVal,
+          categoryName: catVal,
+          subCategoryName: subCatVal,
+          brand: brandVal,
+          price: priceVal,
+          oldPrice: oldPriceVal,
+          weight: weightVal,
+          status: statusVal,
+          image: imageVal,
+        });
+      } else if (isSubCategory) {
         const parentVal = parentIdx !== -1 && cols[parentIdx] ? cols[parentIdx] : 'General';
         items.push({
           name: nameVal,
@@ -178,7 +221,7 @@ export function ImportCsvModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} subtitle={subtitle}>
+    <Modal isOpen={isOpen} onClose={onClose} title={title} subtitle={subtitle} size={isProduct ? 'max-w-2xl' : 'max-w-[540px]'}>
       <div className="space-y-4 text-xs">
         {/* Sample Download Toolbar */}
         <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center justify-between gap-3">
@@ -269,8 +312,10 @@ export function ImportCsvModal({
                   <tr>
                     <th className="py-2 px-3">#</th>
                     <th className="py-2 px-3">NAME</th>
+                    {isProduct && <th className="py-2 px-3">SKU</th>}
+                    {isProduct && <th className="py-2 px-3">PRICE</th>}
                     {isSubCategory && <th className="py-2 px-3">PARENT</th>}
-                    <th className="py-2 px-3">CODE</th>
+                    {!isProduct && <th className="py-2 px-3">CODE</th>}
                     <th className="py-2 px-3">STATUS</th>
                   </tr>
                 </thead>
@@ -279,10 +324,14 @@ export function ImportCsvModal({
                     <tr key={idx} className="hover:bg-slate-50">
                       <td className="py-2 px-3 text-slate-400 font-mono">{idx + 1}</td>
                       <td className="py-2 px-3 font-semibold text-slate-800">{row.name}</td>
+                      {isProduct && <td className="py-2 px-3 font-mono text-slate-600">{row.sku || 'Auto'}</td>}
+                      {isProduct && <td className="py-2 px-3 font-bold text-slate-900">₹{row.price || 0}</td>}
                       {isSubCategory && <td className="py-2 px-3 text-slate-600">{row.categoryName}</td>}
-                      <td className="py-2 px-3 font-mono font-bold text-slate-700">
-                        {row.code || <span className="text-slate-400 italic">Auto</span>}
-                      </td>
+                      {!isProduct && (
+                        <td className="py-2 px-3 font-mono font-bold text-slate-700">
+                          {row.code || <span className="text-slate-400 italic">Auto</span>}
+                        </td>
+                      )}
                       <td className="py-2 px-3">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
                           {row.status || 'Active'}

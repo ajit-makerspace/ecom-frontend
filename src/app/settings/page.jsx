@@ -9,7 +9,7 @@ export default function SettingsPage() {
 
   const [storeName, setStoreName] = useState('Aura Store Official');
   const [supportEmail, setSupportEmail] = useState('support@aurastore.com');
-  const [currency, setCurrency] = useState('USD ($)');
+  const [currency, setCurrency] = useState('INR (₹)');
   const [taxRate, setTaxRate] = useState('8.5');
 
   const [adminName, setAdminName] = useState('Alex Morgan');

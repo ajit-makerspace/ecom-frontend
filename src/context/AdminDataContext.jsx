@@ -126,6 +126,24 @@ export function AdminDataProvider({ children }) {
     }
   };
 
+  const bulkImportProducts = async (productsArray) => {
+    try {
+      const res = await api.bulkImportProducts(productsArray);
+      if (res.success) {
+        addToast('success', 'Bulk Import Complete', res.message || 'Products imported successfully.');
+        refreshData();
+        return res;
+      } else {
+        addToast('error', 'Import Failed', res.message || 'Failed to import products.');
+        return res;
+      }
+    } catch (err) {
+      console.error('Failed to bulk import products:', err);
+      addToast('error', 'Import Error', err.message || 'Failed to bulk import products.');
+      throw err;
+    }
+  };
+
   const updateOrderStatus = async (orderId, status) => {
     try {
       const res = await api.updateOrderStatus(orderId, status);
@@ -285,6 +303,7 @@ export function AdminDataProvider({ children }) {
         addProduct,
         updateProduct,
         deleteProduct,
+        bulkImportProducts,
         updateOrderStatus,
         createCategory,
         bulkImportCategories,

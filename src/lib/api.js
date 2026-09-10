@@ -208,6 +208,14 @@ export const api = {
     }
   },
 
+  bulkImportProducts: async (productsArray) => {
+    try {
+      return await apiRequest('/products/bulk-import', 'POST', { products: productsArray });
+    } catch (e) {
+      return { success: false, message: e.message || 'Bulk product import failed' };
+    }
+  },
+
   // Orders
   getOrders: async (params = {}) => {
     try {

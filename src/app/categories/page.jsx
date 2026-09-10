@@ -31,8 +31,13 @@ function CategoryListContent() {
     }
   }, [searchParams]);
 
-  const handleDeleteClick = (cat) => {
-    setDeletingCategory(cat);
+  const handleEdit = (category) => {
+    setEditingCategory(category);
+    setIsAddModalOpen(true);
+  };
+
+  const handleDeleteClick = (category) => {
+    setDeletingCategory(category);
   };
 
   const handleConfirmDelete = () => {
@@ -40,11 +45,6 @@ function CategoryListContent() {
       deleteCategory(deletingCategory.id);
       setDeletingCategory(null);
     }
-  };
-
-  const handleEdit = (cat) => {
-    setEditingCategory(cat);
-    setIsAddModalOpen(true);
   };
 
   const handleResetFilters = () => {
@@ -59,14 +59,16 @@ function CategoryListContent() {
       return;
     }
 
-    const headers = ['Category Name', 'Code', 'Status', 'Image URL'];
-    const rows = filteredCategories.map((cat, index) => {
-      const rawCode = String(cat.code || '').replace(/\D/g, '');
-      const formattedCode = rawCode.length === 4 ? rawCode : String(1001 + index).padStart(4, '0');
-      const name = `"${String(cat.name || '').replace(/"/g, '""')}"`;
-      const status = cat.status || 'Active';
-      const image = `"${String(cat.image || '').replace(/"/g, '""')}"`;
-      return `${name},${formattedCode},${status},${image}`;
+    const headers = ['Category Name', 'Code', 'Slug', 'Product Count', 'Status', 'Image URL'];
+    const rows = filteredCategories.map((c, index) => {
+      const name = `"${String(c.name || '').replace(/"/g, '""')}"`;
+      const rawCode = String(c.code || '').replace(/\D/g, '');
+      const code = `"${rawCode.length === 4 ? rawCode : String(1001 + index).padStart(4, '0')}"`;
+      const slug = `"${String(c.slug || '').replace(/"/g, '""')}"`;
+      const count = c.productCount || 0;
+      const status = c.status || 'Active';
+      const image = `"${String(c.image || '').replace(/"/g, '""')}"`;
+      return `${name},${code},${slug},${count},${status},${image}`;
     });
 
     const csvString = [headers.join(','), ...rows].join('\n');
@@ -82,18 +84,13 @@ function CategoryListContent() {
     addToast('success', 'Export Successful', `Exported ${filteredCategories.length} categories to CSV.`);
   };
 
-  // Filtered categories
   const filteredCategories = useMemo(() => {
-    return categories.filter((cat, index) => {
-      const rawCode = String(cat.code || '').replace(/\D/g, '');
-      const formattedCode = rawCode.length === 4
-        ? rawCode
-        : String(1001 + index).padStart(4, '0');
+    return categories.filter((cat) => {
+      const nameMatch = (cat.name || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+      const slugMatch = (cat.slug || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+      const codeMatch = (cat.code || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
 
-      const matchesSearch =
-        searchTerm.trim() === '' ||
-        cat.name.toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
-        formattedCode.includes(searchTerm.trim());
+      const matchesSearch = searchTerm.trim() === '' || nameMatch || slugMatch || codeMatch;
 
       const catStatus = cat.status || 'Active';
       const matchesStatus =
@@ -103,7 +100,6 @@ function CategoryListContent() {
     });
   }, [categories, searchTerm, statusFilter]);
 
-  // Column definitions for DataTable
   const columns = [
     {
       key: 'image',
@@ -130,11 +126,11 @@ function CategoryListContent() {
           );
         }
         return (
-          <div className="w-12 h-12 rounded-lg bg-slate-50 p-1 flex items-center justify-center border border-slate-100 overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-slate-50 p-1 flex items-center justify-center border border-slate-100 overflow-hidden">
             <img
               src={imgStr}
               alt={cat.name}
-              className="w-10 h-10 object-contain"
+              className="w-8 h-8 object-contain"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -146,7 +142,7 @@ function CategoryListContent() {
     {
       key: 'name',
       header: 'CATEGORY NAME',
-      className: 'font-medium text-slate-900',
+      className: 'font-medium text-slate-800',
     },
     {
       key: 'code',
@@ -158,11 +154,20 @@ function CategoryListContent() {
           : String(1001 + index).padStart(4, '0');
 
         return (
-          <span className="px-2.5 py-1 rounded bg-slate-100 border border-slate-200/60 font-mono text-xs font-bold text-slate-700 tracking-wider">
+          <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200/60 font-mono text-xs font-bold text-slate-700 tracking-wider">
             {formattedCode}
           </span>
         );
       },
+    },
+    {
+      key: 'productCount',
+      header: 'PRODUCTS',
+      render: (cat) => (
+        <span className="text-slate-600 font-semibold text-xs">
+          {cat.productCount || 0} items
+        </span>
+      ),
     },
     {
       key: 'status',

@@ -1,80 +1,126 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAdminData } from '@/context/AdminDataContext';
 import { Modal } from '@/components/ui/Modal';
 import { FileUploadInput } from '@/components/ui/FileUploadInput';
-import { useAdminData } from '@/context/AdminDataContext';
-import { INITIAL_CATEGORIES } from '@/lib/mockData';
+import { generateSku } from '@/lib/utils';
 
-export function AddEditProductModal({ isOpen, onClose, productToEdit }) {
-  const { addProduct, updateProduct, categories: contextCategories } = useAdminData();
-
-  const availableCategories = contextCategories.length > 0
-    ? contextCategories.map((c) => c.name)
-    : ['Electronics', 'Home & Office', 'Fashion', 'Beauty & Personal Care'];
+export function AddEditProductModal({ isOpen, onClose, productToEdit = null }) {
+  const { categories, subCategories, addProduct, updateProduct, addToast } = useAdminData();
 
   const [name, setName] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [subCategoryId, setSubCategoryId] = useState('');
   const [sku, setSku] = useState('');
-  const [category, setCategory] = useState(availableCategories[0] || 'Electronics');
+  const [brand, setBrand] = useState('');
   const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [status, setStatus] = useState('Active');
-  const [image, setImage] = useState('');
+  const [oldPrice, setOldPrice] = useState('');
+  const [weight, setWeight] = useState('');
   const [description, setDescription] = useState('');
+  const [hasVariants, setHasVariants] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [sortOrder, setSortOrder] = useState('0');
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [image, setImage] = useState('');
+  const [status, setStatus] = useState('Active');
 
   useEffect(() => {
     if (productToEdit) {
       setName(productToEdit.name || '');
+      setCategoryId(productToEdit.categoryId ? String(productToEdit.categoryId) : '');
+      setSubCategoryId(productToEdit.subCategoryId ? String(productToEdit.subCategoryId) : '');
       setSku(productToEdit.sku || '');
-      setCategory(productToEdit.category || 'Electronics');
-      setPrice(productToEdit.price ? productToEdit.price.toString() : '');
-      setStock(productToEdit.stock !== undefined ? productToEdit.stock.toString() : '');
-      setStatus(productToEdit.status || 'Active');
-      setImage(productToEdit.image || '');
+      setBrand(productToEdit.brand || '');
+      setPrice(productToEdit.price !== undefined ? String(productToEdit.price) : '');
+      setOldPrice(productToEdit.oldPrice !== undefined && productToEdit.oldPrice !== null ? String(productToEdit.oldPrice) : '');
+      setWeight(productToEdit.weight !== undefined && productToEdit.weight !== null ? String(productToEdit.weight) : '');
       setDescription(productToEdit.description || '');
+      setHasVariants(Boolean(productToEdit.hasVariants));
+      setIsFeatured(Boolean(productToEdit.isFeatured));
+      setSortOrder(productToEdit.sortOrder !== undefined ? String(productToEdit.sortOrder) : '0');
+      setMetaTitle(productToEdit.metaTitle || '');
+      setMetaDescription(productToEdit.metaDescription || '');
+      setImage(productToEdit.image || '');
+      setStatus(productToEdit.status || 'Active');
     } else {
       setName('');
+      setCategoryId('');
+      setSubCategoryId('');
       setSku('');
-      setCategory('Electronics');
+      setBrand('');
       setPrice('');
-      setStock('');
-      setStatus('Active');
-      setImage('');
+      setOldPrice('');
+      setWeight('');
       setDescription('');
+      setHasVariants(false);
+      setIsFeatured(false);
+      setSortOrder('0');
+      setMetaTitle('');
+      setMetaDescription('');
+      setImage('');
+      setStatus('Active');
     }
   }, [productToEdit, isOpen]);
 
+  // Filter subcategories by selected category
+  const filteredSubCategories = subCategories.filter(
+    (sc) => !categoryId || String(sc.categoryId) === String(categoryId)
+  );
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !price || !stock) return;
+    if (!name.trim()) {
+      addToast('error', 'Validation Error', 'Product Name is required.');
+      return;
+    }
 
-    const defaultImg =
-      image ||
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80';
+    if (!price || parseFloat(price) <= 0) {
+      addToast('error', 'Validation Error', 'Please enter a valid price.');
+      return;
+    }
+
+    if (!categoryId) {
+      addToast('error', 'Validation Error', 'Please select a Category.');
+      return;
+    }
+
+    // Auto-generate SKU if omitted
+    let finalSku = sku.trim();
+    if (!finalSku) {
+      const selectedCat = categories.find((c) => String(c.id) === String(categoryId));
+      const selectedSubCat = subCategories.find((sc) => String(sc.id) === String(subCategoryId));
+      const catCode = selectedCat?.code || (categoryId ? String(1000 + parseInt(categoryId, 10)) : '1000');
+      const subCatCode = selectedSubCat?.code || (subCategoryId ? String(2000 + parseInt(subCategoryId, 10)) : '0000');
+      finalSku = generateSku(catCode, subCatCode, name);
+    }
+
+    const payload = {
+      name: name.trim(),
+      categoryId: parseInt(categoryId, 10),
+      subCategoryId: subCategoryId ? parseInt(subCategoryId, 10) : null,
+      sku: finalSku,
+      brand: brand.trim(),
+      price: parseFloat(price),
+      oldPrice: oldPrice ? parseFloat(oldPrice) : null,
+      weight: weight ? parseFloat(weight) : null,
+      description: description.trim(),
+      hasVariants,
+      isFeatured,
+      sortOrder: parseInt(sortOrder || '0', 10),
+      metaTitle: metaTitle.trim(),
+      metaDescription: metaDescription.trim(),
+      image: image.trim(),
+      status,
+    };
 
     if (productToEdit) {
-      updateProduct(productToEdit.id, {
-        name,
-        sku: sku || `SKU-${Date.now().toString().slice(-4)}`,
-        category,
-        price: parseFloat(price),
-        stock: parseInt(stock, 10),
-        status,
-        image: defaultImg,
-        description,
-      });
+      updateProduct(productToEdit.id, payload);
     } else {
-      addProduct({
-        name,
-        sku: sku || `SKU-${Date.now().toString().slice(-4)}`,
-        category,
-        price: parseFloat(price),
-        stock: parseInt(stock, 10),
-        status,
-        image: defaultImg,
-        description,
-      });
+      addProduct(payload);
     }
+
     onClose();
   };
 
@@ -83,128 +129,255 @@ export function AddEditProductModal({ isOpen, onClose, productToEdit }) {
       isOpen={isOpen}
       onClose={onClose}
       title={productToEdit ? 'Edit Product' : 'Add New Product'}
-      subtitle={
-        productToEdit
-          ? `Update details for SKU ${productToEdit.sku}`
-          : 'Fill out the product information below to list it in your store.'
-      }
-      maxWidth="xl"
+      subtitle={productToEdit ? `Update details for ${productToEdit.name}` : 'Fill in the form to create a new product.'}
+      size="max-w-2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-        {/* Title */}
+        {/* Product Name */}
         <div>
           <label className="block font-semibold text-slate-700 mb-1">
-            Product Title *
+            Product Name *
           </label>
           <input
             type="text"
             required
-            placeholder="e.g. Wireless Ergonomic Headphones"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
+            placeholder="e.g. Wireless Ergonomic Headphones"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
           />
         </div>
 
-        {/* Grid 2 cols: SKU & Category */}
+        {/* Category & Sub Category */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block font-semibold text-slate-700 mb-1">
-              SKU Code
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. AUDIO-ANC-01"
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
-            />
-          </div>
-
           <div>
             <label className="block font-semibold text-slate-700 mb-1">
               Category *
             </label>
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
+              required
+              value={categoryId}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                setSubCategoryId('');
+              }}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
             >
-              {availableCategories.map((catName) => (
-                <option key={catName} value={catName}>
-                  {catName}
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              Sub Category
+            </label>
+            <select
+              value={subCategoryId}
+              onChange={(e) => setSubCategoryId(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            >
+              <option value="">None / General</option>
+              {filteredSubCategories.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.name}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* Grid 3 cols: Price, Stock, Status */}
+        {/* SKU & Brand */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-semibold text-slate-700">
+                SKU Code
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const selectedCat = categories.find((c) => String(c.id) === String(categoryId));
+                  const selectedSubCat = subCategories.find((sc) => String(sc.id) === String(subCategoryId));
+                  const catCode = selectedCat?.code || (categoryId ? String(1000 + parseInt(categoryId, 10)) : '1000');
+                  const subCatCode = selectedSubCat?.code || (subCategoryId ? String(2000 + parseInt(subCategoryId, 10)) : '0000');
+                  setSku(generateSku(catCode, subCatCode, name));
+                }}
+                className="text-[10px] text-blue-600 hover:underline font-semibold cursor-pointer"
+              >
+                Auto Generate
+              </button>
+            </div>
+            <input
+              type="text"
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              Brand
+            </label>
+            <input
+              type="text"
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Price, Old Price, Weight */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block font-semibold text-slate-700 mb-1">
-              Price ($) *
+              Price
             </label>
             <input
               type="number"
               step="0.01"
               required
-              placeholder="199.99"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
             />
           </div>
 
           <div>
             <label className="block font-semibold text-slate-700 mb-1">
-              Initial Stock *
+              Old Price
             </label>
             <input
               type="number"
-              required
-              placeholder="50"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
+              step="0.01"
+              value={oldPrice}
+              onChange={(e) => setOldPrice(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
             />
           </div>
 
           <div>
             <label className="block font-semibold text-slate-700 mb-1">
-              Publish Status
+              Weight (kg)
+            </label>
+            <input
+              type="number"
+              step="0.001"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Status & Sort Order */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              Status
             </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none font-semibold"
             >
               <option value="Active">Active</option>
-              <option value="Draft">Draft</option>
-              <option value="Out of Stock">Out of Stock</option>
+              <option value="Inactive">Inactive</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              Sort Order
+            </label>
+            <input
+              type="number"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            />
           </div>
         </div>
 
+        {/* Feature Toggles */}
+        <div className="flex items-center gap-6 pt-1">
+          {/* Has Variants - Commented Out
+          <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-semibold">
+            <input
+              type="checkbox"
+              checked={hasVariants}
+              onChange={(e) => setHasVariants(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Has Variants</span>
+          </label>
+          */}
+
+          <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-semibold">
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={(e) => setIsFeatured(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Is Featured</span>
+          </label>
+        </div>
+
+        {/* Image Input */}
         <FileUploadInput
           value={image}
           onChange={setImage}
-          label="Product Image (PNG, JPG, JPEG, PDF, etc.)"
+          label="Product Image"
         />
 
-        {/* Description */}
+        {/* SEO Meta Title & Meta Description - Commented Out
+        <div className="space-y-3 pt-2 border-t border-slate-100">
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              SEO Meta Title
+            </label>
+            <input
+              type="text"
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              SEO Meta Description
+            </label>
+            <textarea
+              rows={2}
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            />
+          </div>
+        </div>
+        */}
+
+        {/* Product Description - Commented Out
         <div>
           <label className="block font-semibold text-slate-700 mb-1">
-            Description
+            Product Description
           </label>
           <textarea
             rows={3}
-            placeholder="Write a brief overview of features..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:outline-none"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
           />
         </div>
+        */}
 
         {/* Form Footer Actions */}
         <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
@@ -217,7 +390,7 @@ export function AddEditProductModal({ isOpen, onClose, productToEdit }) {
           </button>
           <button
             type="submit"
-            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md shadow-indigo-600/20"
+            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
           >
             {productToEdit ? 'Save Changes' : 'Create Product'}
           </button>

@@ -13,7 +13,7 @@ import { Edit2, Trash2, Upload, Download, FileText } from 'lucide-react';
 
 function SubCategoryListContent() {
   const searchParams = useSearchParams();
-  const { subCategories, createSubCategory, bulkImportSubCategories, deleteSubCategory, updateSubCategory, addToast } = useAdminData();
+  const { subCategories, bulkImportSubCategories, deleteSubCategory, addToast } = useAdminData();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [editingSubCategory, setEditingSubCategory] = useState(null);
@@ -21,7 +21,7 @@ function SubCategoryListContent() {
   // Delete Confirmation Modal State
   const [deletingSubCategory, setDeletingSubCategory] = useState(null);
 
-  // Search & Filter state
+  // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
@@ -31,8 +31,13 @@ function SubCategoryListContent() {
     }
   }, [searchParams]);
 
-  const handleDeleteClick = (sub) => {
-    setDeletingSubCategory(sub);
+  const handleEdit = (subCategory) => {
+    setEditingSubCategory(subCategory);
+    setIsAddModalOpen(true);
+  };
+
+  const handleDeleteClick = (subCategory) => {
+    setDeletingSubCategory(subCategory);
   };
 
   const handleConfirmDelete = () => {
@@ -40,11 +45,6 @@ function SubCategoryListContent() {
       deleteSubCategory(deletingSubCategory.id);
       setDeletingSubCategory(null);
     }
-  };
-
-  const handleEdit = (sub) => {
-    setEditingSubCategory(sub);
-    setIsAddModalOpen(true);
   };
 
   const handleResetFilters = () => {
@@ -59,15 +59,16 @@ function SubCategoryListContent() {
       return;
     }
 
-    const headers = ['Sub Category Name', 'Parent Category', 'Code', 'Status', 'Image URL'];
-    const rows = filteredSubCategories.map((sub, index) => {
-      const rawCode = String(sub.code || '').replace(/\D/g, '');
-      const formattedCode = rawCode.length === 4 ? rawCode : String(2001 + index).padStart(4, '0');
-      const name = `"${String(sub.name || '').replace(/"/g, '""')}"`;
-      const parentName = `"${String(sub.categoryName || 'General').replace(/"/g, '""')}"`;
-      const status = sub.status || 'Active';
-      const image = `"${String(sub.image || '').replace(/"/g, '""')}"`;
-      return `${name},${parentName},${formattedCode},${status},${image}`;
+    const headers = ['Sub Category Name', 'Main Category', 'Code', 'Slug', 'Status', 'Image URL'];
+    const rows = filteredSubCategories.map((s, index) => {
+      const name = `"${String(s.name || '').replace(/"/g, '""')}"`;
+      const mainCat = `"${String(s.categoryName || 'General').replace(/"/g, '""')}"`;
+      const rawCode = String(s.code || '').replace(/\D/g, '');
+      const code = `"${rawCode.length === 4 ? rawCode : String(2001 + index).padStart(4, '0')}"`;
+      const slug = `"${String(s.slug || '').replace(/"/g, '""')}"`;
+      const status = s.status || 'Active';
+      const image = `"${String(s.image || '').replace(/"/g, '""')}"`;
+      return `${name},${mainCat},${code},${slug},${status},${image}`;
     });
 
     const csvString = [headers.join(','), ...rows].join('\n');
@@ -75,7 +76,7 @@ function SubCategoryListContent() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `sub_categories_export_${Date.now()}.csv`);
+    link.setAttribute('download', `subcategories_export_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -84,17 +85,12 @@ function SubCategoryListContent() {
   };
 
   const filteredSubCategories = useMemo(() => {
-    return subCategories.filter((sub, index) => {
-      const rawCode = String(sub.code || '').replace(/\D/g, '');
-      const formattedCode = rawCode.length === 4
-        ? rawCode
-        : String(2001 + index).padStart(4, '0');
+    return subCategories.filter((sub) => {
+      const nameMatch = (sub.name || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+      const catMatch = (sub.categoryName || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+      const codeMatch = (sub.code || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
 
-      const matchesSearch =
-        searchTerm.trim() === '' ||
-        sub.name.toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
-        (sub.categoryName || '').toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
-        formattedCode.includes(searchTerm.trim());
+      const matchesSearch = searchTerm.trim() === '' || nameMatch || catMatch || codeMatch;
 
       const subStatus = sub.status || 'Active';
       const matchesStatus =
@@ -150,9 +146,9 @@ function SubCategoryListContent() {
     },
     {
       key: 'categoryName',
-      header: 'PARENT CATEGORY',
+      header: 'MAIN CATEGORY',
       render: (sub) => (
-        <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
+        <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold w-fit">
           {sub.categoryName || 'General'}
         </span>
       ),
