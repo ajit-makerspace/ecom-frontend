@@ -48,7 +48,7 @@ export function AdminDataProvider({ children }) {
       ]);
 
       if (prodRes.status === 'fulfilled' && prodRes.value.success) {
-        setProducts(prodRes.value.products || []);
+        setProducts((prodRes.value.products || []).filter((p) => p.status !== 2 && p.status !== 'Deleted'));
       }
 
       if (orderRes.status === 'fulfilled' && orderRes.value.success) {
@@ -60,15 +60,15 @@ export function AdminDataProvider({ children }) {
       }
 
       if (modRes.status === 'fulfilled' && modRes.value.success) {
-        setModules(modRes.value.modules || []);
+        setModules((modRes.value.modules || []).filter((m) => m.status !== 2 && m.status !== 'Deleted'));
       }
 
       if (catRes.status === 'fulfilled' && catRes.value.success) {
-        setCategories(catRes.value.categories || []);
+        setCategories((catRes.value.categories || []).filter((c) => c.status !== 2 && c.status !== 'Deleted'));
       }
 
       if (subCatRes.status === 'fulfilled' && subCatRes.value.success) {
-        setSubCategories(subCatRes.value.subCategories || []);
+        setSubCategories((subCatRes.value.subCategories || []).filter((sc) => sc.status !== 2 && sc.status !== 'Deleted'));
       }
 
       if (analyticsRes.status === 'fulfilled' && analyticsRes.value.success) {

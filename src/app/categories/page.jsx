@@ -61,17 +61,16 @@ function CategoryListContent() {
       return;
     }
 
-    const headers = ['Module', 'Category Name', 'Code', 'Slug', 'Product Count', 'Status', 'Image URL'];
+    const headers = ['Module', 'Category Name', 'Code', 'Slug', 'Status', 'Image URL'];
     const rows = filteredCategories.map((c, index) => {
       const moduleName = `"${String(c.moduleName || 'Unassigned').replace(/"/g, '""')}"`;
       const name = `"${String(c.name || '').replace(/"/g, '""')}"`;
       const rawCode = String(c.code || '').replace(/\D/g, '');
       const code = `"${rawCode.length === 4 ? rawCode : String(1001 + index).padStart(4, '0')}"`;
       const slug = `"${String(c.slug || '').replace(/"/g, '""')}"`;
-      const count = c.productCount || 0;
       const status = c.status || 'Active';
       const image = `"${String(c.image || '').replace(/"/g, '""')}"`;
-      return `${moduleName},${name},${code},${slug},${count},${status},${image}`;
+      return `${moduleName},${name},${code},${slug},${status},${image}`;
     });
 
     const csvString = [headers.join(','), ...rows].join('\n');
@@ -175,15 +174,6 @@ function CategoryListContent() {
           </span>
         );
       },
-    },
-    {
-      key: 'productCount',
-      header: 'PRODUCTS',
-      render: (cat) => (
-        <span className="text-slate-600 font-semibold text-xs">
-          {cat.productCount || 0} items
-        </span>
-      ),
     },
     {
       key: 'status',
