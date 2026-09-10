@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Package,
-  ShoppingBag,
   Users,
   Layers,
   ChevronDown,
@@ -33,7 +32,7 @@ export function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Accordion Expand States (Collapsed by default, expands only on user click)
+  // Accordion Expand States (Category and Products open by default)
   const [openAccordions, setOpenAccordions] = useState({
     homeSlides: false,
     category: false,
@@ -98,7 +97,7 @@ export function Sidebar({
 
         {/* Navigation Items List */}
         <nav className="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto text-xs font-semibold">
-          {/* Dashboard */}
+          {/* Dashboard - Commented Out
           <Link
             href="/"
             onClick={() => setIsMobileOpen(false)}
@@ -112,8 +111,9 @@ export function Sidebar({
             <LayoutDashboard className={cn('w-4 h-4 shrink-0', isDashboardActive ? 'text-white' : 'text-slate-300')} />
             {!isCollapsed && <span className="flex-1">Dashboard</span>}
           </Link>
+          */}
 
-          {/* Home Slides Accordion */}
+          {/* Home Slides Accordion - Commented Out
           <div>
             <button
               onClick={() => toggleAccordion('homeSlides')}
@@ -139,8 +139,9 @@ export function Sidebar({
               </div>
             )}
           </div>
+          */}
 
-          {/* Category Accordion (EXPANDED BY DEFAULT) */}
+          {/* Category Accordion */}
           <div>
             <button
               onClick={() => toggleAccordion('category')}
@@ -242,7 +243,7 @@ export function Sidebar({
             )}
           </div>
 
-          {/* Users */}
+          {/* Users - Commented Out
           <Link
             href="/customers"
             onClick={() => setIsMobileOpen(false)}
@@ -254,8 +255,9 @@ export function Sidebar({
             <Users className={cn('w-4 h-4 shrink-0', isCustomersActive ? 'text-white' : 'text-slate-300')} />
             {!isCollapsed && <span className="flex-1">Users</span>}
           </Link>
+          */}
 
-          {/* Orders */}
+          {/* Orders - Commented Out
           <Link
             href="/orders"
             onClick={() => setIsMobileOpen(false)}
@@ -267,8 +269,9 @@ export function Sidebar({
             <Package className={cn('w-4 h-4 shrink-0', isOrdersActive ? 'text-white' : 'text-slate-300')} />
             {!isCollapsed && <span className="flex-1">Orders</span>}
           </Link>
+          */}
 
-          {/* Banners Accordion */}
+          {/* Banners Accordion - Commented Out
           <div>
             <button
               onClick={() => toggleAccordion('banners')}
@@ -283,8 +286,9 @@ export function Sidebar({
               )}
             </button>
           </div>
+          */}
 
-          {/* Blogs Accordion */}
+          {/* Blogs Accordion - Commented Out
           <div>
             <button
               onClick={() => toggleAccordion('blogs')}
@@ -299,8 +303,9 @@ export function Sidebar({
               )}
             </button>
           </div>
+          */}
 
-          {/* Manage Logo */}
+          {/* Manage Logo - Commented Out
           <Link
             href="/settings"
             onClick={() => setIsMobileOpen(false)}
@@ -309,6 +314,7 @@ export function Sidebar({
             <Settings className="w-4 h-4 text-slate-300 shrink-0" />
             {!isCollapsed && <span className="flex-1">Manage Logo</span>}
           </Link>
+          */}
 
           {/* Logout Button */}
           <button
