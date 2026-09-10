@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function DataTable({
   columns = [],
   data = [],
   keyExtractor = (item, index) => item.id || index,
   emptyMessage = 'No data available.',
-  initialRowsPerPage = 8,
-  rowsPerPageOptions = [8, 16, 24, 50],
+  initialRowsPerPage = 7,
+  rowsPerPageOptions = [7, 14, 21, 50],
 }) {
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,36 +93,15 @@ export function DataTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="py-3.5 px-6 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600 font-medium select-none">
-        {/* Rows per page */}
-        <div className="flex items-center gap-2">
-          <span>Rows per page:</span>
-          <div className="relative inline-block">
-            <select
-              value={rowsPerPage}
-              onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
-              className="appearance-none bg-slate-50 border border-slate-200 rounded-md pl-2.5 pr-7 py-1 font-semibold text-slate-800 cursor-pointer focus:outline-none focus:border-blue-600"
-            >
-              {rowsPerPageOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Page Range & Next/Previous Controls */}
-        <div className="flex items-center gap-4">
-          <span className="text-slate-500 font-medium">
-            {totalRows > 0
-              ? `${startIndex + 1}-${Math.min(
-                  startIndex + rowsPerPage,
-                  totalRows
-                )} of ${totalRows}`
-              : '0 of 0'}
-          </span>
+      <div className="py-3.5 px-6 bg-white border-t border-slate-100 flex items-center justify-between gap-4 text-xs text-slate-600 font-medium select-none">
+        <span className="text-slate-500 font-medium">
+          {totalRows > 0
+            ? `${startIndex + 1}-${Math.min(
+                startIndex + rowsPerPage,
+                totalRows
+              )} of ${totalRows}`
+            : '0 of 0'}
+        </span>
 
           <div className="flex items-center gap-1.5">
             <button
@@ -153,6 +132,5 @@ export function DataTable({
           </div>
         </div>
       </div>
-    </div>
   );
 }

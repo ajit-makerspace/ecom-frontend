@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -33,7 +33,7 @@ export function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Accordion Expand States
+  // Accordion Expand States (Collapsed by default, expands only on user click)
   const [openAccordions, setOpenAccordions] = useState({
     homeSlides: false,
     category: false,
@@ -41,14 +41,6 @@ export function Sidebar({
     banners: false,
     blogs: false,
   });
-
-  useEffect(() => {
-    setOpenAccordions((prev) => ({
-      ...prev,
-      category: pathname.includes('categor'),
-      products: pathname.includes('product'),
-    }));
-  }, [pathname]);
 
   const toggleAccordion = (key) => {
     setOpenAccordions((prev) => ({
@@ -76,27 +68,27 @@ export function Sidebar({
       {/* Sidebar Container */}
       <aside
         className={cn(
-          'fixed top-0 bottom-0 left-0 z-40 bg-white text-slate-700 border-r border-slate-200 transition-all duration-300 flex flex-col shadow-xs',
+          'fixed top-0 bottom-0 left-0 z-40 bg-[#1E3A5F] text-slate-100 border-r border-white/10 transition-all duration-300 flex flex-col shadow-md',
           isCollapsed ? 'w-20' : 'w-64',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         {/* Brand Logo Header - Matching CLASSYSHOP Logo */}
-        <div className="h-20 flex items-center justify-between px-5 border-b border-slate-100">
+        <div className="h-20 flex items-center justify-between px-5 border-b border-white/10">
           <Link
             href="/"
             className="flex items-center gap-3 overflow-hidden font-bold"
           >
             {/* Speed Shopping Bag Logo Icon */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white shadow-md shadow-rose-500/30 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-md shadow-rose-900/30 shrink-0">
               <BagIcon className="w-5 h-5 text-white" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col leading-none">
-                <span className="text-lg font-black tracking-tight text-slate-900 uppercase">
-                  CLASSY<span className="text-red-600">SHOP</span>
+                <span className="text-lg font-black tracking-tight text-white uppercase">
+                  CLASSY<span className="text-rose-400">SHOP</span>
                 </span>
-                <span className="text-[9px] font-extrabold text-slate-500 tracking-wider uppercase mt-0.5">
+                <span className="text-[9px] font-extrabold text-slate-300 tracking-wider uppercase mt-0.5">
                   BIG MEGA STORE
                 </span>
               </div>
@@ -113,11 +105,11 @@ export function Sidebar({
             className={cn(
               'flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150',
               isDashboardActive
-                ? 'bg-slate-100 text-blue-600 font-bold'
-                : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                ? 'bg-white/15 text-white font-bold shadow-xs'
+                : 'text-slate-200 hover:bg-white/10 hover:text-white'
             )}
           >
-            <LayoutDashboard className="w-4 h-4 text-slate-500 shrink-0" />
+            <LayoutDashboard className={cn('w-4 h-4 shrink-0', isDashboardActive ? 'text-white' : 'text-slate-300')} />
             {!isCollapsed && <span className="flex-1">Dashboard</span>}
           </Link>
 
@@ -125,22 +117,22 @@ export function Sidebar({
           <div>
             <button
               onClick={() => toggleAccordion('homeSlides')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 transition-all"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-all"
             >
               <div className="flex items-center gap-3">
-                <Sliders className="w-4 h-4 text-slate-500 shrink-0" />
+                <Sliders className="w-4 h-4 text-slate-300 shrink-0" />
                 {!isCollapsed && <span>Home Slides</span>}
               </div>
               {!isCollapsed && (
-                openAccordions.homeSlides ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                openAccordions.homeSlides ? <ChevronUp className="w-3.5 h-3.5 text-slate-300" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
               )}
             </button>
             {!isCollapsed && openAccordions.homeSlides && (
-              <div className="ml-7 mt-1 space-y-1 pl-2 border-l border-slate-200">
+              <div className="ml-7 mt-1 space-y-1 pl-2 border-l border-white/15">
                 <Link
                   href="/#slides"
                   onClick={() => setIsMobileOpen(false)}
-                  className="block px-3 py-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-50"
+                  className="block px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10"
                 >
                   • Home Slides List
                 </Link>
@@ -154,20 +146,20 @@ export function Sidebar({
               onClick={() => toggleAccordion('category')}
               className={cn(
                 'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all',
-                isCategoryActive ? 'text-blue-600 font-bold bg-slate-50' : 'text-slate-700 hover:bg-slate-50'
+                isCategoryActive ? 'text-white font-bold bg-white/15' : 'text-slate-200 hover:bg-white/10 hover:text-white'
               )}
             >
               <div className="flex items-center gap-3">
-                <Layers className={cn('w-4 h-4 shrink-0', isCategoryActive ? 'text-blue-600' : 'text-slate-500')} />
+                <Layers className={cn('w-4 h-4 shrink-0', isCategoryActive ? 'text-white' : 'text-slate-300')} />
                 {!isCollapsed && <span>Category</span>}
               </div>
               {!isCollapsed && (
-                openAccordions.category ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                openAccordions.category ? <ChevronUp className="w-3.5 h-3.5 text-slate-300" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
               )}
             </button>
 
             {!isCollapsed && openAccordions.category && (
-              <div className="ml-6 mt-1 space-y-1 pl-2 border-l-2 border-slate-100">
+              <div className="ml-6 mt-1 space-y-1 pl-2 border-l-2 border-white/15">
                 {/* Category List */}
                 <Link
                   href="/categories"
@@ -175,8 +167,8 @@ export function Sidebar({
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
                     pathname === '/categories' || pathname === '/category/list'
-                      ? 'text-blue-600 font-bold bg-blue-50/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'text-white font-bold bg-white/20'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
                   )}
                 >
                   <span className="text-slate-400 text-[10px]">•</span>
@@ -190,8 +182,8 @@ export function Sidebar({
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
                     pathname === '/sub-categories' || pathname === '/category/sub-list'
-                      ? 'text-blue-600 font-bold bg-blue-50/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'text-white font-bold bg-white/20'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
                   )}
                 >
                   <span className="text-slate-400 text-[10px]">•</span>
@@ -207,25 +199,25 @@ export function Sidebar({
               onClick={() => toggleAccordion('products')}
               className={cn(
                 'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all',
-                isProductsActive ? 'text-blue-600 font-bold bg-slate-50' : 'text-slate-700 hover:bg-slate-50'
+                isProductsActive ? 'text-white font-bold bg-white/15' : 'text-slate-200 hover:bg-white/10 hover:text-white'
               )}
             >
               <div className="flex items-center gap-3">
-                <Tag className="w-4 h-4 text-slate-500 shrink-0" />
+                <Tag className={cn('w-4 h-4 shrink-0', isProductsActive ? 'text-white' : 'text-slate-300')} />
                 {!isCollapsed && <span>Products</span>}
               </div>
               {!isCollapsed && (
-                openAccordions.products ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                openAccordions.products ? <ChevronUp className="w-3.5 h-3.5 text-slate-300" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
               )}
             </button>
             {!isCollapsed && openAccordions.products && (
-              <div className="ml-6 mt-1 space-y-1 pl-2 border-l-2 border-slate-100">
+              <div className="ml-6 mt-1 space-y-1 pl-2 border-l-2 border-white/15">
                 <Link
                   href="/products"
                   onClick={() => setIsMobileOpen(false)}
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
-                    pathname === '/products' ? 'text-blue-600 font-bold bg-blue-50/60' : 'text-slate-600 hover:text-slate-900'
+                    pathname === '/products' ? 'text-white font-bold bg-white/20' : 'text-slate-300 hover:text-white hover:bg-white/10'
                   )}
                 >
                   <span className="text-slate-400 text-[10px]">•</span>
@@ -241,10 +233,10 @@ export function Sidebar({
             onClick={() => setIsMobileOpen(false)}
             className={cn(
               'flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all',
-              isCustomersActive ? 'bg-slate-100 text-blue-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
+              isCustomersActive ? 'bg-white/15 text-white font-bold' : 'text-slate-200 hover:bg-white/10 hover:text-white'
             )}
           >
-            <Users className="w-4 h-4 text-slate-500 shrink-0" />
+            <Users className={cn('w-4 h-4 shrink-0', isCustomersActive ? 'text-white' : 'text-slate-300')} />
             {!isCollapsed && <span className="flex-1">Users</span>}
           </Link>
 
@@ -254,10 +246,10 @@ export function Sidebar({
             onClick={() => setIsMobileOpen(false)}
             className={cn(
               'flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all',
-              isOrdersActive ? 'bg-slate-100 text-blue-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
+              isOrdersActive ? 'bg-white/15 text-white font-bold' : 'text-slate-200 hover:bg-white/10 hover:text-white'
             )}
           >
-            <Package className="w-4 h-4 text-slate-500 shrink-0" />
+            <Package className={cn('w-4 h-4 shrink-0', isOrdersActive ? 'text-white' : 'text-slate-300')} />
             {!isCollapsed && <span className="flex-1">Orders</span>}
           </Link>
 
@@ -265,14 +257,14 @@ export function Sidebar({
           <div>
             <button
               onClick={() => toggleAccordion('banners')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 transition-all"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-all"
             >
               <div className="flex items-center gap-3">
-                <ImageIcon className="w-4 h-4 text-slate-500 shrink-0" />
+                <ImageIcon className="w-4 h-4 text-slate-300 shrink-0" />
                 {!isCollapsed && <span>Banners</span>}
               </div>
               {!isCollapsed && (
-                openAccordions.banners ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                openAccordions.banners ? <ChevronUp className="w-3.5 h-3.5 text-slate-300" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
               )}
             </button>
           </div>
@@ -281,14 +273,14 @@ export function Sidebar({
           <div>
             <button
               onClick={() => toggleAccordion('blogs')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 transition-all"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-all"
             >
               <div className="flex items-center gap-3">
-                <BookOpen className="w-4 h-4 text-slate-500 shrink-0" />
+                <BookOpen className="w-4 h-4 text-slate-300 shrink-0" />
                 {!isCollapsed && <span>Blogs</span>}
               </div>
               {!isCollapsed && (
-                openAccordions.blogs ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                openAccordions.blogs ? <ChevronUp className="w-3.5 h-3.5 text-slate-300" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
               )}
             </button>
           </div>
@@ -297,9 +289,9 @@ export function Sidebar({
           <Link
             href="/settings"
             onClick={() => setIsMobileOpen(false)}
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 transition-all"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-all"
           >
-            <Settings className="w-4 h-4 text-slate-500 shrink-0" />
+            <Settings className="w-4 h-4 text-slate-300 shrink-0" />
             {!isCollapsed && <span className="flex-1">Manage Logo</span>}
           </Link>
 
@@ -313,9 +305,9 @@ export function Sidebar({
                 window.location.href = '/login';
               }
             }}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-rose-500/20 hover:text-rose-200 transition-all"
           >
-            <LogOut className="w-4 h-4 text-slate-500 shrink-0" />
+            <LogOut className="w-4 h-4 text-slate-300 shrink-0" />
             {!isCollapsed && <span className="flex-1 text-left">Logout</span>}
           </button>
         </nav>
