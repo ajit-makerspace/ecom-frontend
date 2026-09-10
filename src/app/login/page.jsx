@@ -74,7 +74,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Admin Portal Login
+            Masters Shop Admin Panel
           </h1>
           <p className="text-xs text-slate-500">
             Enter your Admin credentials to access store control panel.
@@ -101,7 +101,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 required
-                placeholder="superadmin@aura.com"
+                placeholder="Masters Shop Admin Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:outline-none transition-all text-xs"
@@ -165,7 +165,7 @@ export default function LoginPage() {
               </>
             ) : (
               <>
-                Sign In to Dashboard <ArrowRight className="w-4 h-4" />
+                Sign In to Dashboard
               </>
             )}
           </button>
