@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { FileUploadInput } from '@/components/ui/FileUploadInput';
 import { useAdminData } from '@/context/AdminDataContext';
-import { Image as ImageIcon, Plus, Edit, Hash } from 'lucide-react';
+import { Plus, Edit, Hash } from 'lucide-react';
 
 export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
-  const { createCategory, updateCategory, addToast } = useAdminData();
+  const { modules, createCategory, updateCategory, addToast } = useAdminData();
   const [name, setName] = useState('');
+  const [moduleId, setModuleId] = useState('');
   const [code, setCode] = useState('');
   const [status, setStatus] = useState('Active');
   const [imageUrl, setImageUrl] = useState('');
@@ -16,11 +17,13 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
   useEffect(() => {
     if (editCategory) {
       setName(editCategory.name || '');
+      setModuleId(editCategory.moduleId ? String(editCategory.moduleId) : '');
       setCode(editCategory.code || '');
       setStatus(editCategory.status || 'Active');
       setImageUrl(editCategory.image || '');
     } else {
       setName('');
+      setModuleId('');
       setCode('');
       setStatus('Active');
       setImageUrl('');
@@ -42,6 +45,7 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
 
     const payload = {
       name: name.trim(),
+      moduleId: moduleId ? parseInt(moduleId, 10) : null,
       code: finalCode,
       status: status || 'Active',
       image: imageUrl.trim() || '',
@@ -54,6 +58,7 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
     }
 
     setName('');
+    setModuleId('');
     setCode('');
     setStatus('Active');
     setImageUrl('');
@@ -65,7 +70,7 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
       isOpen={isOpen}
       onClose={onClose}
       title={editCategory ? 'Edit Category' : 'Add New Category'}
-      subtitle={editCategory ? 'Update category details and icon' : 'Create a new classification category for your catalog.'}
+      subtitle={editCategory ? 'Update category details and icon' : 'Create a new classification category under a module.'}
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div>
@@ -80,6 +85,24 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
             onChange={(e) => setName(e.target.value)}
             className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
           />
+        </div>
+
+        <div>
+          <label className="block font-semibold text-slate-700 mb-1">
+            Module *
+          </label>
+          <select
+            value={moduleId}
+            onChange={(e) => setModuleId(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-blue-600 font-semibold"
+          >
+            <option value="">Select Parent Module</option>
+            {modules.map((mod) => (
+              <option key={mod.id} value={mod.id}>
+                {mod.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

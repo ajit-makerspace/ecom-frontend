@@ -49,7 +49,7 @@ export function Sidebar({
     }));
   };
 
-  const isCategoryActive = pathname === '/categories' || pathname.includes('categor');
+  const isCategoryActive = pathname === '/modules' || pathname === '/categories' || pathname.includes('categor');
   const isProductsActive = pathname === '/products';
   const isCustomersActive = pathname === '/customers';
   const isOrdersActive = pathname === '/orders';
@@ -160,6 +160,21 @@ export function Sidebar({
 
             {!isCollapsed && openAccordions.category && (
               <div className="ml-6 mt-1 space-y-1 pl-2 border-l-2 border-white/15">
+                {/* Module List */}
+                <Link
+                  href="/modules"
+                  onClick={() => setIsMobileOpen(false)}
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
+                    pathname === '/modules'
+                      ? 'text-white font-bold bg-white/20'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
+                  )}
+                >
+                  <span className="text-slate-400 text-[10px]">•</span>
+                  <span>Module List</span>
+                </Link>
+
                 {/* Category List */}
                 <Link
                   href="/categories"

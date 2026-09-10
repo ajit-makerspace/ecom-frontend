@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { AddEditProductModal } from '@/components/products/AddEditProductModal';
 import { ViewProductModal } from '@/components/products/ViewProductModal';
+import { ProductDetailsView } from '@/components/products/ProductDetailsView';
 import { ImportCsvModal } from '@/components/categories/ImportCsvModal';
 import { Edit2, Trash2, Eye, Upload, Download, FileText } from 'lucide-react';
 
@@ -258,6 +259,15 @@ export default function ProductsPage() {
       .filter((sc) => categoryFilter === 'ALL' || String(sc.categoryId) === String(categoryFilter))
       .map((sc) => ({ value: String(sc.id), label: sc.name })),
   ];
+
+  if (viewingProduct) {
+    return (
+      <ProductDetailsView
+        product={viewingProduct}
+        onBack={() => setViewingProduct(null)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

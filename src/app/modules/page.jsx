@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useMemo, Suspense } from 'react';
 import { useAdminData } from '@/context/AdminDataContext';
-import { AddCategoryModal } from '@/components/categories/AddCategoryModal';
+import { AddModuleModal } from '@/components/categories/AddModuleModal';
 import { ImportCsvModal } from '@/components/categories/ImportCsvModal';
 import { DataTable } from '@/components/ui/DataTable';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -11,67 +10,54 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { Edit2, Trash2, Upload, Download, FileText } from 'lucide-react';
 
-function CategoryListContent() {
-  const searchParams = useSearchParams();
-  const { categories, modules, createCategory, bulkImportCategories, deleteCategory, updateCategory, addToast } = useAdminData();
+function ModuleListContent() {
+  const { modules, bulkImportModules, deleteModule, addToast } = useAdminData();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingModule, setEditingModule] = useState(null);
+  const [deletingModule, setDeletingModule] = useState(null);
 
-  // Delete Confirmation Modal State
-  const [deletingCategory, setDeletingCategory] = useState(null);
-
-  // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [moduleFilter, setModuleFilter] = useState('ALL');
 
-  useEffect(() => {
-    if (searchParams.get('action') === 'add') {
-      setIsAddModalOpen(true);
-    }
-  }, [searchParams]);
-
-  const handleEdit = (category) => {
-    setEditingCategory(category);
+  const handleEdit = (mod) => {
+    setEditingModule(mod);
     setIsAddModalOpen(true);
   };
 
-  const handleDeleteClick = (category) => {
-    setDeletingCategory(category);
+  const handleDeleteClick = (mod) => {
+    setDeletingModule(mod);
   };
 
   const handleConfirmDelete = () => {
-    if (deletingCategory) {
-      deleteCategory(deletingCategory.id);
-      setDeletingCategory(null);
+    if (deletingModule) {
+      deleteModule(deletingModule.id);
+      setDeletingModule(null);
     }
   };
 
   const handleResetFilters = () => {
     setSearchTerm('');
     setStatusFilter('ALL');
-    setModuleFilter('ALL');
   };
 
-  // Export Filtered Categories to CSV
+  // Export Filtered Modules to CSV
   const handleExportCsv = () => {
-    if (filteredCategories.length === 0) {
-      addToast('error', 'Export Warning', 'No categories available to export.');
+    if (filteredModules.length === 0) {
+      addToast('error', 'Export Warning', 'No modules available to export.');
       return;
     }
 
-    const headers = ['Module', 'Category Name', 'Code', 'Slug', 'Product Count', 'Status', 'Image URL'];
-    const rows = filteredCategories.map((c, index) => {
-      const moduleName = `"${String(c.moduleName || 'Unassigned').replace(/"/g, '""')}"`;
-      const name = `"${String(c.name || '').replace(/"/g, '""')}"`;
-      const rawCode = String(c.code || '').replace(/\D/g, '');
-      const code = `"${rawCode.length === 4 ? rawCode : String(1001 + index).padStart(4, '0')}"`;
-      const slug = `"${String(c.slug || '').replace(/"/g, '""')}"`;
-      const count = c.productCount || 0;
-      const status = c.status || 'Active';
-      const image = `"${String(c.image || '').replace(/"/g, '""')}"`;
-      return `${moduleName},${name},${code},${slug},${count},${status},${image}`;
+    const headers = ['Module Name', 'Code', 'Slug', 'Categories Count', 'Status', 'Image URL'];
+    const rows = filteredModules.map((m, index) => {
+      const name = `"${String(m.name || '').replace(/"/g, '""')}"`;
+      const rawCode = String(m.code || '').replace(/\D/g, '');
+      const code = `"${rawCode.length === 4 ? rawCode : String(1000 + index).padStart(4, '0')}"`;
+      const slug = `"${String(m.slug || '').replace(/"/g, '""')}"`;
+      const count = m.categoryCount || 0;
+      const status = m.status || 'Active';
+      const image = `"${String(m.image || '').replace(/"/g, '""')}"`;
+      return `${name},${code},${slug},${count},${status},${image}`;
     });
 
     const csvString = [headers.join(','), ...rows].join('\n');
@@ -79,44 +65,40 @@ function CategoryListContent() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `categories_export_${Date.now()}.csv`);
+    link.setAttribute('download', `modules_export_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    addToast('success', 'Export Successful', `Exported ${filteredCategories.length} categories to CSV.`);
+    addToast('success', 'Export Successful', `Exported ${filteredModules.length} modules to CSV.`);
   };
 
-  const filteredCategories = useMemo(() => {
-    return categories.filter((cat) => {
-      const nameMatch = (cat.name || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
-      const slugMatch = (cat.slug || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
-      const codeMatch = (cat.code || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
-      const moduleMatch = (cat.moduleName || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+  const filteredModules = useMemo(() => {
+    return modules.filter((mod) => {
+      const nameMatch = (mod.name || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+      const slugMatch = (mod.slug || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
+      const codeMatch = (mod.code || '').toLowerCase().includes(searchTerm.toLowerCase().trim());
 
-      const matchesSearch = searchTerm.trim() === '' || nameMatch || slugMatch || codeMatch || moduleMatch;
+      const matchesSearch = searchTerm.trim() === '' || nameMatch || slugMatch || codeMatch;
 
-      const catStatus = cat.status || 'Active';
+      const modStatus = mod.status || 'Active';
       const matchesStatus =
-        statusFilter === 'ALL' || catStatus.toUpperCase() === statusFilter.toUpperCase();
+        statusFilter === 'ALL' || modStatus.toUpperCase() === statusFilter.toUpperCase();
 
-      const matchesModule =
-        moduleFilter === 'ALL' || String(cat.moduleId) === String(moduleFilter);
-
-      return matchesSearch && matchesStatus && matchesModule;
+      return matchesSearch && matchesStatus;
     });
-  }, [categories, searchTerm, statusFilter, moduleFilter]);
+  }, [modules, searchTerm, statusFilter]);
 
   const columns = [
     {
       key: 'image',
       header: 'IMAGE',
       width: '80px',
-      render: (cat) => {
-        if (!cat.image || !cat.image.trim()) {
+      render: (mod) => {
+        if (!mod.image || !mod.image.trim()) {
           return <span className="text-slate-400 text-xs font-semibold px-2">—</span>;
         }
-        const imgStr = cat.image.trim();
+        const imgStr = mod.image.trim();
         const isPdf = imgStr.toLowerCase().startsWith('data:application/pdf') || imgStr.toLowerCase().endsWith('.pdf');
         if (isPdf) {
           return (
@@ -136,7 +118,7 @@ function CategoryListContent() {
           <div className="w-10 h-10 rounded-lg bg-slate-50 p-1 flex items-center justify-center border border-slate-100 overflow-hidden">
             <img
               src={imgStr}
-              alt={cat.name}
+              alt={mod.name}
               className="w-8 h-8 object-contain"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -147,27 +129,18 @@ function CategoryListContent() {
       },
     },
     {
-      key: 'moduleName',
-      header: 'MODULE',
-      render: (cat) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/60 font-semibold text-xs">
-          {cat.moduleName || 'Unassigned'}
-        </span>
-      ),
-    },
-    {
       key: 'name',
-      header: 'CATEGORY NAME',
+      header: 'MODULE NAME',
       className: 'font-medium text-slate-800',
     },
     {
       key: 'code',
       header: 'CODE',
-      render: (cat, index) => {
-        const rawCode = String(cat.code || '').replace(/\D/g, '');
+      render: (mod, index) => {
+        const rawCode = String(mod.code || '').replace(/\D/g, '');
         const formattedCode = rawCode.length === 4
           ? rawCode
-          : String(1001 + index).padStart(4, '0');
+          : String(1000 + index).padStart(4, '0');
 
         return (
           <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200/60 font-mono text-xs font-bold text-slate-700 tracking-wider">
@@ -177,37 +150,37 @@ function CategoryListContent() {
       },
     },
     {
-      key: 'productCount',
-      header: 'PRODUCTS',
-      render: (cat) => (
+      key: 'categoryCount',
+      header: 'CATEGORIES',
+      render: (mod) => (
         <span className="text-slate-600 font-semibold text-xs">
-          {cat.productCount || 0} items
+          {mod.categoryCount || 0} categories
         </span>
       ),
     },
     {
       key: 'status',
       header: 'STATUS',
-      render: (cat) => <StatusBadge status={cat.status || 'Active'} />,
+      render: (mod) => <StatusBadge status={mod.status || 'Active'} />,
     },
     {
       key: 'action',
       header: 'ACTION',
       align: 'right',
       width: '100px',
-      render: (cat) => (
+      render: (mod) => (
         <div className="flex items-center justify-end gap-3 text-slate-500">
           <button
-            onClick={() => handleEdit(cat)}
+            onClick={() => handleEdit(mod)}
             className="p-1 hover:text-blue-600 transition-colors"
-            title="Edit Category"
+            title="Edit Module"
           >
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => handleDeleteClick(cat)}
+            onClick={() => handleDeleteClick(mod)}
             className="p-1 hover:text-rose-600 transition-colors"
-            title="Delete Category"
+            title="Delete Module"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -221,7 +194,7 @@ function CategoryListContent() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-          Category List
+          Module List
         </h1>
 
         <div className="flex items-center gap-3">
@@ -230,21 +203,21 @@ function CategoryListContent() {
             type="button"
             onClick={() => setIsCsvModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-white border border-slate-200/90 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-extrabold text-xs uppercase tracking-wider shadow-2xs cursor-pointer transition-all"
-            title="Import Categories from CSV File"
+            title="Import Modules from CSV File"
           >
             <Upload className="w-4 h-4 text-slate-500" />
             <span>IMPORT CSV</span>
           </button>
 
-          {/* ADD CATEGORY Button */}
+          {/* ADD MODULE Button */}
           <button
             onClick={() => {
-              setEditingCategory(null);
+              setEditingModule(null);
               setIsAddModalOpen(true);
             }}
             className="px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-extrabold text-xs uppercase tracking-wider shadow-sm transition-all"
           >
-            ADD CATEGORY
+            ADD MODULE
           </button>
         </div>
       </div>
@@ -255,15 +228,6 @@ function CategoryListContent() {
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           selectFilters={[
-            {
-              id: 'module',
-              value: moduleFilter,
-              onChange: setModuleFilter,
-              options: [
-                { value: 'ALL', label: 'All Modules' },
-                ...modules.map((m) => ({ value: String(m.id), label: m.name })),
-              ],
-            },
             {
               id: 'status',
               value: statusFilter,
@@ -280,63 +244,63 @@ function CategoryListContent() {
               type="button"
               onClick={handleExportCsv}
               className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-extrabold text-xs uppercase tracking-wider shadow-2xs cursor-pointer transition-all"
-              title="Export filtered categories to CSV file"
+              title="Export filtered modules to CSV file"
             >
               <Download className="w-4 h-4 text-slate-500" />
               <span>EXPORT CSV</span>
             </button>
           }
-          showReset={Boolean(searchTerm || statusFilter !== 'ALL' || moduleFilter !== 'ALL')}
+          showReset={Boolean(searchTerm || statusFilter !== 'ALL')}
           onReset={handleResetFilters}
         />
 
         <DataTable
           columns={columns}
-          data={filteredCategories}
-          keyExtractor={(cat) => cat.id}
+          data={filteredModules}
+          keyExtractor={(mod) => mod.id}
           emptyMessage={
             searchTerm || statusFilter !== 'ALL'
-              ? 'No categories match your search or filter criteria.'
-              : 'No categories found. Click "ADD CATEGORY" or "IMPORT CSV" to add categories.'
+              ? 'No modules match your search or filter criteria.'
+              : 'No modules found. Click "ADD MODULE" or "IMPORT CSV" to add modules.'
           }
         />
       </div>
 
-      {/* Add / Edit Category Modal */}
-      <AddCategoryModal
+      {/* Add / Edit Module Modal */}
+      <AddModuleModal
         isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
-          setEditingCategory(null);
+          setEditingModule(null);
         }}
-        editCategory={editingCategory}
+        editModule={editingModule}
       />
 
       {/* Bulk Import CSV Modal */}
       <ImportCsvModal
         isOpen={isCsvModalOpen}
         onClose={() => setIsCsvModalOpen(false)}
-        type="category"
-        onImport={bulkImportCategories}
+        type="module"
+        onImport={bulkImportModules}
       />
 
       {/* Delete Confirmation Popup Modal */}
       <DeleteConfirmModal
-        isOpen={Boolean(deletingCategory)}
-        onClose={() => setDeletingCategory(null)}
+        isOpen={Boolean(deletingModule)}
+        onClose={() => setDeletingModule(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete Category"
-        itemName={deletingCategory?.name || ''}
-        description="Deleting this category will permanently remove it from your store catalog. This action cannot be undone."
+        title="Delete Module"
+        itemName={deletingModule?.name || ''}
+        description="Deleting this module will remove it from your store hierarchy. Categories under this module may be affected."
       />
     </div>
   );
 }
 
-export default function CategoryListPage() {
+export default function ModuleListPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-xs text-slate-400">Loading category list...</div>}>
-      <CategoryListContent />
+    <Suspense fallback={<div className="p-6 text-xs text-slate-400">Loading module list...</div>}>
+      <ModuleListContent />
     </Suspense>
   );
 }

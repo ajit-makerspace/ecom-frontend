@@ -7,7 +7,7 @@ import { UploadCloud, Download, CheckCircle2, AlertTriangle, FileSpreadsheet, X,
 export function ImportCsvModal({
   isOpen,
   onClose,
-  type = 'category', // 'product' | 'category' | 'sub-category'
+  type = 'category', // 'product' | 'module' | 'category' | 'sub-category'
   onImport,
 }) {
   const [file, setFile] = useState(null);
@@ -17,16 +17,21 @@ export function ImportCsvModal({
   const fileInputRef = useRef(null);
 
   const isProduct = type === 'product';
+  const isModule = type === 'module';
   const isSubCategory = type === 'sub-category';
 
   const title = isProduct
     ? 'Bulk Import Products'
+    : isModule
+    ? 'Bulk Import Modules'
     : isSubCategory
     ? 'Bulk Import Sub-Categories'
     : 'Bulk Import Categories';
 
   const subtitle = isProduct
     ? 'Upload a CSV file to bulk import products with prices, SKUs, categories, and brands.'
+    : isModule
+    ? 'Upload a CSV file to bulk import top-level store modules.'
     : isSubCategory
     ? 'Upload a CSV file to import multiple sub-categories into your catalog at once.'
     : 'Upload a CSV file to bulk import main categories with codes, status, and images.';
@@ -42,6 +47,11 @@ export function ImportCsvModal({
         `Ergonomic Desk Chair,1003-2005-DESK-CHAIR,Home & Living,Furniture,Ergo,199.00,249.00,12.500,Active,https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=300\n` +
         `Smart Watch Pro,1002-2003-SMART-WATCH,Electronics,Gadgets,TechCorp,249.99,,0.150,Active,\n`;
       filename = 'products_import_sample.csv';
+    } else if (isModule) {
+      csvContent = `Module Name,Code,Description,Status,Image URL\n` +
+        `E-Commerce,1000,Main Retail E-Commerce Module,Active,https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300\n` +
+        `Electronics,1001,Gadgets & Tech Module,Active,\n`;
+      filename = 'modules_import_sample.csv';
     } else if (isSubCategory) {
       csvContent = `Sub Category Name,Parent Category,Code,Status,Image URL\n` +
         `Men's Wear,Fashion,2001,Active,https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300\n` +

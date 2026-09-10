@@ -9,6 +9,7 @@ export function AdminDataProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [modules, setModules] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -36,10 +37,11 @@ export function AdminDataProvider({ children }) {
     try {
       setLoading(true);
 
-      const [prodRes, orderRes, custRes, catRes, subCatRes, analyticsRes] = await Promise.allSettled([
+      const [prodRes, orderRes, custRes, modRes, catRes, subCatRes, analyticsRes] = await Promise.allSettled([
         api.getProducts(),
         api.getOrders(),
         api.getCustomers(),
+        api.getModules(),
         api.getCategories(),
         api.getSubCategories(),
         api.getDashboardAnalytics(),
@@ -57,6 +59,10 @@ export function AdminDataProvider({ children }) {
         setCustomers(custRes.value.customers || []);
       }
 
+      if (modRes.status === 'fulfilled' && modRes.value.success) {
+        setModules(modRes.value.modules || []);
+      }
+
       if (catRes.status === 'fulfilled' && catRes.value.success) {
         setCategories(catRes.value.categories || []);
       }
@@ -69,8 +75,8 @@ export function AdminDataProvider({ children }) {
         setAnalytics(analyticsRes.value);
       }
     } catch (err) {
-      console.error('Error fetching admin backend data:', err);
-      addToast('error', 'Sync Warning', 'Could not load live data from backend server.');
+      console.error('Failed to load store data:', err);
+      addToast('error', 'Network Error', 'Failed to connect to express server.');
     } finally {
       setLoading(false);
     }
@@ -80,13 +86,13 @@ export function AdminDataProvider({ children }) {
     refreshData();
   }, [refreshData]);
 
-  // Backend Mutation Actions
+  // Product CRUD Action Handlers
   const addProduct = async (productData) => {
     try {
       const res = await api.createProduct(productData);
       if (res.success && res.product) {
         setProducts((prev) => [res.product, ...prev]);
-        addToast('success', 'Product Created', `"${res.product.name}" was created successfully.`);
+        addToast('success', 'Product Created', `"${res.product.name}" created successfully.`);
         refreshData();
       }
     } catch (err) {
@@ -95,14 +101,14 @@ export function AdminDataProvider({ children }) {
     }
   };
 
-  const updateProduct = async (id, updatedData) => {
+  const updateProduct = async (id, productData) => {
     try {
-      const res = await api.updateProduct(id, updatedData);
+      const res = await api.updateProduct(id, productData);
       if (res.success && res.product) {
         setProducts((prev) =>
-          prev.map((prod) => (prod.id === id || prod.dbId === res.product.dbId ? res.product : prod))
+          prev.map((p) => (p.id === id ? { ...p, ...res.product } : p))
         );
-        addToast('info', 'Product Updated', `Product ${id} has been updated.`);
+        addToast('info', 'Product Updated', `"${productData.name}" updated successfully.`);
         refreshData();
       }
     } catch (err) {
@@ -113,11 +119,10 @@ export function AdminDataProvider({ children }) {
 
   const deleteProduct = async (id) => {
     try {
-      const target = products.find((p) => p.id === id);
       const res = await api.deleteProduct(id);
       if (res.success) {
         setProducts((prev) => prev.filter((p) => p.id !== id));
-        addToast('warning', 'Product Removed', `"${target?.name || id}" was deleted.`);
+        addToast('warning', 'Product Deleted', 'Product removed from catalog.');
         refreshData();
       }
     } catch (err) {
@@ -162,6 +167,70 @@ export function AdminDataProvider({ children }) {
     }
   };
 
+  // Module CRUD Action Handlers
+  const createModule = async (moduleData) => {
+    try {
+      const res = await api.createModule(moduleData);
+      if (res.success && res.module) {
+        setModules((prev) => [...prev, res.module]);
+        addToast('success', 'Module Created', `"${res.module.name}" created.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to create module:', err);
+      addToast('error', 'Error', err.message || 'Failed to create module.');
+    }
+  };
+
+  const bulkImportModules = async (modulesArray) => {
+    try {
+      const res = await api.bulkImportModules(modulesArray);
+      if (res.success && Array.isArray(res.modules)) {
+        addToast('success', 'CSV Import Complete', res.message || `Imported ${res.modules.length} modules.`);
+        refreshData();
+        return res;
+      } else {
+        addToast('error', 'Import Failed', res.message || 'Bulk import failed.');
+        return res;
+      }
+    } catch (err) {
+      console.error('Failed to bulk import modules:', err);
+      addToast('error', 'Import Error', err.message || 'Failed to import modules.');
+      return { success: false, message: err.message };
+    }
+  };
+
+  const updateModule = async (id, moduleData) => {
+    try {
+      const res = await api.updateModule(id, moduleData);
+      if (res.success && res.module) {
+        setModules((prev) =>
+          prev.map((m) => (m.id === id ? { ...m, ...res.module } : m))
+        );
+        addToast('info', 'Module Updated', `Module "${moduleData.name}" updated.`);
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to update module:', err);
+      addToast('error', 'Error', err.message || 'Failed to update module.');
+    }
+  };
+
+  const deleteModule = async (id) => {
+    try {
+      const res = await api.deleteModule(id);
+      if (res.success) {
+        setModules((prev) => prev.filter((m) => m.id !== id));
+        addToast('warning', 'Module Deleted', 'Module was removed.');
+        refreshData();
+      }
+    } catch (err) {
+      console.error('Failed to delete module:', err);
+      addToast('error', 'Error', err.message || 'Failed to delete module.');
+    }
+  };
+
+  // Category CRUD Action Handlers
   const createCategory = async (categoryData) => {
     try {
       const res = await api.createCategory(categoryData);
@@ -292,6 +361,7 @@ export function AdminDataProvider({ children }) {
         products,
         orders,
         customers,
+        modules,
         categories,
         subCategories,
         analytics,
@@ -305,6 +375,10 @@ export function AdminDataProvider({ children }) {
         deleteProduct,
         bulkImportProducts,
         updateOrderStatus,
+        createModule,
+        bulkImportModules,
+        updateModule,
+        deleteModule,
         createCategory,
         bulkImportCategories,
         updateCategory,

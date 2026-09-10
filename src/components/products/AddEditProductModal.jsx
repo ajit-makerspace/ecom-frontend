@@ -365,7 +365,7 @@ export function AddEditProductModal({ isOpen, onClose, productToEdit = null }) {
         </div>
         */}
 
-        {/* Product Description - Commented Out
+        {/* Product Description */}
         <div>
           <label className="block font-semibold text-slate-700 mb-1">
             Product Description
@@ -374,10 +374,10 @@ export function AddEditProductModal({ isOpen, onClose, productToEdit = null }) {
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none"
+            placeholder="Enter product description..."
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-600 focus:outline-none text-xs"
           />
         </div>
-        */}
 
         {/* Form Footer Actions */}
         <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
