@@ -2,7 +2,7 @@ import './globals.css';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
 export const metadata = {
-  title: 'AuraAdmin - E-Commerce Admin Dashboard',
+  title: 'MakerShop - E-Commerce Admin Dashboard',
   description: 'Next.js modern e-commerce management dashboard frontend',
 };
 
