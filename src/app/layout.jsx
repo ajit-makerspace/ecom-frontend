@@ -1,5 +1,5 @@
 import './globals.css';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 
 export const metadata = {
   title: 'MakerShop - E-Commerce Admin Dashboard',
