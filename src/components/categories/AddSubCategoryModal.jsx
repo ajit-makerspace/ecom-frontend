@@ -73,7 +73,8 @@ export function AddSubCategoryModal({ isOpen, onClose, editSubCategory = null })
       isOpen={isOpen}
       onClose={onClose}
       title={editSubCategory ? 'Edit Sub Category' : 'Add New Sub Category'}
-      subtitle={editSubCategory ? 'Update sub-category details and parent association.' : 'Link a secondary sub-category to an existing parent category.'}
+      subtitle={editSubCategory ? `Update details for "${editSubCategory.name}"` : 'Create a sub-category under a parent category.'}
+      size="max-w-3xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div>
