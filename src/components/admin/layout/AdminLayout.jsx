@@ -16,11 +16,13 @@ export function AdminLayout({ children }) {
   const pathname = usePathname();
 
   const isLoginPage = pathname === '/login' || pathname === '/admin/login' || pathname.startsWith('/admin/login');
+  const isUserPortal = pathname.startsWith('/user');
+  const isNoAdminLayoutPage = isLoginPage || isUserPortal;
 
   return (
     <ThemeProvider>
       <AdminDataProvider>
-        {isLoginPage ? (
+        {isNoAdminLayoutPage ? (
           <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
             {children}
             <ToastContainer />
