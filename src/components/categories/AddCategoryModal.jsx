@@ -70,7 +70,8 @@ export function AddCategoryModal({ isOpen, onClose, editCategory = null }) {
       isOpen={isOpen}
       onClose={onClose}
       title={editCategory ? 'Edit Category' : 'Add New Category'}
-      subtitle={editCategory ? 'Update category details and icon' : 'Create a new classification category under a module.'}
+      subtitle={editCategory ? `Update details for "${editCategory.name}"` : 'Create a main category under a module.'}
+      size="max-w-3xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div>

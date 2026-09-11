@@ -61,6 +61,7 @@ export function AddModuleModal({ isOpen, onClose, editModule = null }) {
       onClose={onClose}
       title={editModule ? 'Edit Module' : 'Add New Module'}
       subtitle={editModule ? `Update details for "${editModule.name}"` : 'Create a top-level module to organize categories.'}
+      size="max-w-3xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div>
