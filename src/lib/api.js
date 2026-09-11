@@ -21,7 +21,9 @@ function getApiBaseUrl() {
     host = process.env.NEXT_PUBLIC_API_HOST_DEV || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
   }
 
-  return host.endsWith('/api') ? host : `${host.replace(/\/$/, '')}/api`;
+  if (host.endsWith('/api/admin')) return host;
+  if (host.endsWith('/api')) return `${host}/admin`;
+  return `${host.replace(/\/$/, '')}/api/admin`;
 }
 
 const API_BASE_URL = getApiBaseUrl();
