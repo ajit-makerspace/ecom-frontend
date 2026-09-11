@@ -2,8 +2,8 @@ import './globals.css';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 
 export const metadata = {
-  title: 'MakerShop - E-Commerce Admin Dashboard',
-  description: 'Next.js modern e-commerce management dashboard frontend',
+  title: 'MakerSpace Shop - E-Commerce Megatorium',
+  description: 'Next.js modern e-commerce platform for 21 craft & technology disciplines',
 };
 
 export default function RootLayout({ children }) {
