@@ -61,15 +61,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden font-sans">
       {/* Background Decorative Gradient Orbs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#002740]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#0C3554]/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-200/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Login Card */}
       <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 sm:p-10 relative z-10 space-y-6">
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 mb-2">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#002740] text-white shadow-lg shadow-[#002740]/30 mb-2">
             <ShieldCheck className="w-8 h-8" />
           </div>
 
@@ -104,7 +104,7 @@ export default function LoginPage() {
                 placeholder="Masters Shop Admin Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:outline-none transition-all text-xs"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#002740] focus:ring-1 focus:ring-[#002740] focus:outline-none transition-all text-xs"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:outline-none transition-all text-xs"
+                className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#002740] focus:ring-1 focus:ring-[#002740] focus:outline-none transition-all text-xs"
               />
               <button
                 type="button"
@@ -146,7 +146,7 @@ export default function LoginPage() {
               <input
                 type="checkbox"
                 defaultChecked
-                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="w-4 h-4 rounded border-slate-300 text-[#002740] focus:ring-[#002740] accent-[#002740]"
               />
               <span>Keep me signed in</span>
             </label>
@@ -156,7 +156,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 active:scale-98"
+            className="w-full py-3 px-4 rounded-xl bg-[#002740] hover:bg-[#0C3554] disabled:opacity-70 text-white font-bold text-xs shadow-lg shadow-[#002740]/25 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
           >
             {loading ? (
               <>
