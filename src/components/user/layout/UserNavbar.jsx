@@ -2,22 +2,18 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useUserPortal } from '@/context/user/UserPortalContext';
-import { cn } from '@/lib/utils';
-import { Menu, ChevronDown, ChevronRight, Flame, Tag, Sparkles } from 'lucide-react';
+import { Menu, ChevronDown, Sparkles, ChevronRight } from 'lucide-react';
 
 export function UserNavbar() {
-  const pathname = usePathname();
   const { categories } = useUserPortal();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
+        setIsCategoryOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -25,98 +21,64 @@ export function UserNavbar() {
   }, []);
 
   return (
-    <nav className="w-full bg-white border-b border-slate-200/90 font-sans relative z-30">
+    <nav className="w-full bg-slate-900 text-white font-sans sticky top-0 z-30 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        {/* Left: Solid Yellow "All Departments" Button with Dropdown */}
-        <div className="flex items-center gap-6">
-          <div className="relative" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setIsOpen((prev) => !prev)}
-              className="w-64 bg-[#FED700] hover:bg-amber-400 text-slate-900 font-extrabold text-xs tracking-wide uppercase px-5 py-3.5 flex items-center justify-between cursor-pointer rounded-t-lg shrink-0 transition-colors shadow-2xs"
-            >
-              <div className="flex items-center gap-2">
-                <Menu className="w-4 h-4 text-slate-900" />
-                <span>All Departments</span>
+        {/* Left Side: ALL DEPARTMENTS Dropdown Button using Admin Sidebar Blue (#002740) */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsCategoryOpen((prev) => !prev)}
+            className="w-64 bg-[#002740] hover:bg-[#0C3554] text-white font-extrabold text-xs tracking-wide uppercase px-5 py-3.5 flex items-center justify-between cursor-pointer rounded-t-lg shrink-0 transition-colors shadow-2xs"
+          >
+            <div className="flex items-center gap-2.5">
+              <Menu className="w-4 h-4 text-white" />
+              <span>ALL DEPARTMENTS</span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-white transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* All 21 Categories Dropdown Menu */}
+          {isCategoryOpen && (
+            <div className="absolute top-full left-0 w-64 bg-white border border-slate-200 text-slate-800 shadow-2xl rounded-b-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[75vh] overflow-y-auto font-sans">
+              <div className="py-2">
+                {categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={`/user/category/${category.slug}`}
+                    onClick={() => setIsCategoryOpen(false)}
+                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#002740] transition-colors border-b border-slate-100/60 last:border-0 group"
+                  >
+                    <span className="truncate pr-2">{category.name}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#002740] shrink-0" />
+                  </Link>
+                ))}
               </div>
-              <ChevronDown className={cn('w-4 h-4 text-slate-900 transition-transform duration-200', isOpen && 'rotate-180')} />
-            </button>
-
-            {/* Dropdown Menu Listing All 21 Categories */}
-            {isOpen && (
-              <div className="absolute top-full left-0 w-64 bg-white text-slate-900 shadow-2xl border border-slate-200 rounded-b-xl z-50 animate-in fade-in slide-in-from-top-1 max-h-[460px] overflow-y-auto divide-y divide-slate-100 text-xs font-semibold">
-                <Link
-                  href="/user/deals"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 font-bold text-slate-900 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <Flame className="w-3.5 h-3.5 text-rose-500 fill-current" />
-                    <span>Value of the Day</span>
-                  </span>
-                </Link>
-
-                <Link
-                  href="/user/deals"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 font-bold text-slate-900 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <Tag className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Top 100 Offers</span>
-                  </span>
-                </Link>
-
-                <Link
-                  href="/user/products"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 font-bold text-slate-900 transition-colors border-b-2 border-slate-200"
-                >
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-                    <span>New Arrivals</span>
-                  </span>
-                </Link>
-
-                {/* 21 Categories */}
-                <div className="divide-y divide-slate-100">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.id}
-                      href={`/user/category/${cat.slug}`}
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 hover:text-amber-600 transition-colors group"
-                    >
-                      <span className="truncate pr-2">{cat.name}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-500 shrink-0" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Horizontal Nav Links */}
-          <div className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-800">
-            <Link href="/user" className="hover:text-amber-500 transition-colors flex items-center gap-1">
-              <span>All Pages</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
-            </Link>
-            <Link href="/user/products" className="hover:text-amber-500 transition-colors">
-              Featured Brands
-            </Link>
-            <Link href="/user/deals" className="hover:text-amber-500 transition-colors">
-              Trending Styles
-            </Link>
-            <Link href="/user/products" className="hover:text-amber-500 transition-colors">
-              Gift Cards
-            </Link>
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* Far Right: Free Shipping Tag */}
-        <div className="hidden md:block text-xs font-extrabold text-slate-800">
-          Free Shipping on Orders $50+
+        {/* Center Navigation Links */}
+        <div className="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-wider text-slate-200">
+          <Link href="/user" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+            Home
+          </Link>
+          <Link href="/user/deals" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740] flex items-center gap-1.5 text-sky-400">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Super Deals</span>
+          </Link>
+          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+            Featured Brands
+          </Link>
+          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+            Trending Crafts
+          </Link>
+          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+            Tech & Robotics
+          </Link>
+        </div>
+
+        {/* Right Help Desk Note */}
+        <div className="hidden lg:block text-xs text-slate-300 font-medium">
+          Free Shipping on Orders Over <span className="font-extrabold text-white">$99</span>
         </div>
       </div>
     </nav>

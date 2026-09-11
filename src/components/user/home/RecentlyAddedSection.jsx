@@ -18,8 +18,8 @@ export function RecentlyAddedSection() {
       <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
         <div className="relative">
           <h2 className="text-xl font-extrabold text-slate-900 pb-2">Recently Added</h2>
-          {/* Yellow underline accent */}
-          <div className="absolute bottom-0 left-0 w-24 h-1 bg-[#FED700] rounded-full" />
+          {/* Admin Sidebar Blue underline accent */}
+          <div className="absolute bottom-0 left-0 w-24 h-1 bg-[#002740] rounded-full" />
         </div>
 
         {/* Arrow Navigation */}
@@ -55,7 +55,7 @@ export function RecentlyAddedSection() {
             key={idx}
             onClick={() => setActiveDot(idx)}
             className={`h-2.5 rounded-full transition-all cursor-pointer ${
-              activeDot === idx ? 'w-8 bg-[#FED700]' : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+              activeDot === idx ? 'w-8 bg-[#002740]' : 'w-2.5 bg-slate-300 hover:bg-slate-400'
             }`}
           />
         ))}

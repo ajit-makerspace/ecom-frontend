@@ -19,7 +19,7 @@ export function FooterProductsGrid() {
       <div className="space-y-4">
         <div className="relative border-b border-slate-200/80 pb-2">
           <h3 className="text-base font-extrabold text-slate-900">Featured Products</h3>
-          <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-[#FED700]" />
+          <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-[#002740]" />
         </div>
 
         <div className="space-y-3">
@@ -60,7 +60,7 @@ export function FooterProductsGrid() {
       <div className="space-y-4">
         <div className="relative border-b border-slate-200/80 pb-2">
           <h3 className="text-base font-extrabold text-slate-900">Top Selling Products</h3>
-          <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-[#FED700]" />
+          <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-[#002740]" />
         </div>
 
         <div className="space-y-3">
@@ -101,7 +101,7 @@ export function FooterProductsGrid() {
       <div className="space-y-4">
         <div className="relative border-b border-slate-200/80 pb-2">
           <h3 className="text-base font-extrabold text-slate-900">On-sale Products</h3>
-          <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-[#FED700]" />
+          <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-[#002740]" />
         </div>
 
         <div className="space-y-3">
@@ -116,10 +116,10 @@ export function FooterProductsGrid() {
               </div>
 
               <div className="min-w-0 flex-1">
-                {/* Yellow Star Ratings */}
+                {/* Star Ratings */}
                 <div className="flex items-center text-amber-400 gap-0.5 text-[10px] mb-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-3 h-3 ${i < 4 ? 'fill-current text-amber-400' : 'text-[#FED700]'}`} />
+                    <Star key={i} className={`w-3 h-3 ${i < 4 ? 'fill-current text-amber-400' : 'text-[#002740]'}`} />
                   ))}
                 </div>
 
@@ -149,11 +149,11 @@ export function FooterProductsGrid() {
       <div className="bg-[#EDEDED] rounded-2xl p-5 flex flex-col justify-between items-center text-center border border-slate-200/80 shadow-2xs relative overflow-hidden group">
         <div>
           <span className="text-xl font-black text-slate-900 tracking-tight block uppercase">
-            smart<span className="text-amber-500">G3</span>
+            smart<span className="text-[#002740]">G3</span>
           </span>
           <span className="text-xs font-bold text-slate-500 block mb-2">Now with 4G</span>
 
-          <div className="inline-block bg-[#FED700] text-slate-950 font-black text-xs px-3 py-1.5 rounded-lg shadow-2xs">
+          <div className="inline-block bg-[#002740] text-white font-black text-xs px-3 py-1.5 rounded-lg shadow-2xs">
             STARTING AT <span className="text-sm font-black">$129.99</span>
           </div>
         </div>

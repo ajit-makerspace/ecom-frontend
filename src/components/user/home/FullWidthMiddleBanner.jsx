@@ -16,7 +16,7 @@ export function FullWidthMiddleBanner() {
             SHOP AND <span className="font-black text-slate-900">SAVE BIG</span> ON HOTTEST TABLETS
           </h2>
 
-          <div className="inline-flex items-center gap-2 bg-[#FED700] text-slate-950 px-5 py-2.5 rounded-xl font-black text-sm sm:text-base shadow-xs group-hover:scale-105 transition-transform">
+          <div className="inline-flex items-center gap-2 bg-[#002740] text-white px-5 py-2.5 rounded-xl font-black text-sm sm:text-base shadow-xs group-hover:scale-105 transition-transform">
             <span className="uppercase text-xs font-extrabold opacity-90">STARTING AT</span>
             <span className="text-lg sm:text-xl font-black">$79.99</span>
           </div>

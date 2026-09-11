@@ -22,10 +22,10 @@ export function PromoBannerRow() {
           </h3>
           <Link
             href="/user/products"
-            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 hover:text-amber-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 hover:text-[#002740] transition-colors"
           >
             <span>Shop now</span>
-            <div className="w-5 h-5 rounded-full bg-[#FED700] flex items-center justify-center text-slate-900">
+            <div className="w-5 h-5 rounded-full bg-[#002740] flex items-center justify-center text-white">
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </Link>
@@ -47,10 +47,10 @@ export function PromoBannerRow() {
           </h3>
           <Link
             href="/user/products"
-            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 hover:text-amber-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 hover:text-[#002740] transition-colors"
           >
             <span>Shop now</span>
-            <div className="w-5 h-5 rounded-full bg-[#FED700] flex items-center justify-center text-slate-900">
+            <div className="w-5 h-5 rounded-full bg-[#002740] flex items-center justify-center text-white">
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </Link>
@@ -72,10 +72,10 @@ export function PromoBannerRow() {
           </h3>
           <Link
             href="/user/products"
-            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 hover:text-amber-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 hover:text-[#002740] transition-colors"
           >
             <span>Shop now</span>
-            <div className="w-5 h-5 rounded-full bg-[#FED700] flex items-center justify-center text-slate-900">
+            <div className="w-5 h-5 rounded-full bg-[#002740] flex items-center justify-center text-white">
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </Link>

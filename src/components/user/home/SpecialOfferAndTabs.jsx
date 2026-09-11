@@ -42,11 +42,11 @@ export function SpecialOfferAndTabs() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 font-sans items-stretch">
-      {/* Left Column (~3/12 = ~25%): Special Offer Yellow Card matching top and bottom of product grid */}
+      {/* Left Column (~3/12 = ~25%): Special Offer Card using Admin Sidebar Blue (#002740) */}
       <div className="lg:col-span-4 xl:col-span-3 flex flex-col pt-[42px]">
-        <div className="border-2 border-[#FED700] rounded-2xl bg-white p-4 flex flex-col justify-between relative shadow-2xs hover:shadow-md transition-shadow h-full">
+        <div className="border-2 border-[#002740] rounded-2xl bg-white p-4 flex flex-col justify-between relative shadow-2xs hover:shadow-md transition-shadow h-full">
           {/* Save Badge top-right */}
-          <div className="absolute top-3 right-3 w-12 h-12 rounded-full bg-[#FED700] flex flex-col items-center justify-center text-center shadow-2xs font-extrabold text-[9px] leading-tight text-slate-950 uppercase p-1">
+          <div className="absolute top-3 right-3 w-12 h-12 rounded-full bg-[#002740] text-white flex flex-col items-center justify-center text-center shadow-2xs font-extrabold text-[9px] leading-tight uppercase p-1">
             <span>Save</span>
             <span className="text-[11px] font-black">
               ${(specialOfferProduct.oldPrice ? specialOfferProduct.oldPrice - specialOfferProduct.price : 9).toFixed(2)}
@@ -88,7 +88,7 @@ export function SpecialOfferAndTabs() {
             </div>
           </div>
 
-          {/* Countdown Timer matching Electro Screenshot 100% */}
+          {/* Countdown Timer */}
           <div className="pt-2 border-t border-slate-100 text-center">
             <p className="text-[10px] font-normal text-slate-500 mb-1.5">Hurry Up! Offer ends in:</p>
 
@@ -130,7 +130,7 @@ export function SpecialOfferAndTabs() {
             onClick={() => setActiveTab('featured')}
             className={`pb-2 relative transition-colors cursor-pointer ${
               activeTab === 'featured'
-                ? 'text-slate-900 font-extrabold border-b-2 border-[#FED700]'
+                ? 'text-slate-900 font-extrabold border-b-2 border-[#002740]'
                 : 'hover:text-slate-900'
             }`}
           >
@@ -141,7 +141,7 @@ export function SpecialOfferAndTabs() {
             onClick={() => setActiveTab('onsale')}
             className={`pb-2 relative transition-colors cursor-pointer ${
               activeTab === 'onsale'
-                ? 'text-slate-900 font-extrabold border-b-2 border-[#FED700]'
+                ? 'text-slate-900 font-extrabold border-b-2 border-[#002740]'
                 : 'hover:text-slate-900'
             }`}
           >
@@ -152,7 +152,7 @@ export function SpecialOfferAndTabs() {
             onClick={() => setActiveTab('toprated')}
             className={`pb-2 relative transition-colors cursor-pointer ${
               activeTab === 'toprated'
-                ? 'text-slate-900 font-extrabold border-b-2 border-[#FED700]'
+                ? 'text-slate-900 font-extrabold border-b-2 border-[#002740]'
                 : 'hover:text-slate-900'
             }`}
           >
@@ -199,7 +199,7 @@ export function SpecialOfferAndTabs() {
 
                 <button
                   onClick={() => addToCart(product, 1)}
-                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-[#FED700] text-slate-700 hover:text-slate-950 flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-[#002740] text-slate-700 hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                   title="Add to Cart"
                 >
                   <ShoppingCart className="w-4 h-4" />

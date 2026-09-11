@@ -12,7 +12,7 @@ export function ProductCard({ product, horizontal = false, showActionsOnHover = 
 
   if (horizontal) {
     return (
-      <div className="group bg-white rounded-xl border border-slate-200/80 p-3 hover:border-amber-400 hover:shadow-md transition-all duration-200 flex items-center gap-3 font-sans relative">
+      <div className="group bg-white rounded-xl border border-slate-200/80 p-3 hover:border-slate-400 hover:shadow-md transition-all duration-200 flex items-center gap-3 font-sans relative">
         {/* Horizontal Image */}
         <div className="w-24 h-24 shrink-0 bg-slate-50 rounded-lg p-2 flex items-center justify-center overflow-hidden border border-slate-100">
           <img
@@ -50,7 +50,7 @@ export function ProductCard({ product, horizontal = false, showActionsOnHover = 
 
             <button
               onClick={() => addToCart(product, 1)}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-[#FED700] text-slate-700 hover:text-slate-950 flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-[#002740] text-slate-700 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-2xs"
               title="Add to Cart"
             >
               <ShoppingCart className="w-4 h-4" />
@@ -67,7 +67,7 @@ export function ProductCard({ product, horizontal = false, showActionsOnHover = 
       <div className="relative aspect-square overflow-hidden bg-white flex items-center justify-center p-3 mb-2">
         {/* Discount Badge */}
         {product.badge && (
-          <span className="absolute top-1 left-1 z-10 text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#FED700] text-slate-900">
+          <span className="absolute top-1 left-1 z-10 text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#002740] text-white">
             {product.badge}
           </span>
         )}
@@ -117,7 +117,7 @@ export function ProductCard({ product, horizontal = false, showActionsOnHover = 
 
           <button
             onClick={() => addToCart(product, 1)}
-            className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#FED700] text-slate-700 group-hover:text-slate-950 flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+            className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#002740] text-slate-700 group-hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-2xs"
             title="Add to Cart"
           >
             <ShoppingCart className="w-4 h-4" />
