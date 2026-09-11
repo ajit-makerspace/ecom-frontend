@@ -21,13 +21,13 @@ export function UserNavbar() {
   }, []);
 
   return (
-    <nav className="w-full bg-slate-900 text-white font-sans sticky top-0 z-30 shadow-md">
+    <nav className="w-full bg-[#002740] text-white font-sans sticky top-0 z-30 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        {/* Left Side: ALL DEPARTMENTS Dropdown Button using Admin Sidebar Blue (#002740) */}
+        {/* Left Side: ALL DEPARTMENTS Dropdown Button using Admin Sidebar Dark Navy (#001728) */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsCategoryOpen((prev) => !prev)}
-            className="w-64 bg-[#002740] hover:bg-[#0C3554] text-white font-extrabold text-xs tracking-wide uppercase px-5 py-3.5 flex items-center justify-between cursor-pointer rounded-t-lg shrink-0 transition-colors shadow-2xs"
+            className="w-64 bg-[#001728] hover:bg-[#001F36] text-white font-extrabold text-xs tracking-wide uppercase px-5 py-3.5 flex items-center justify-between cursor-pointer rounded-t-lg shrink-0 transition-colors shadow-2xs border-r border-[#0B3B5E]"
           >
             <div className="flex items-center gap-2.5">
               <Menu className="w-4 h-4 text-white" />
@@ -58,20 +58,20 @@ export function UserNavbar() {
 
         {/* Center Navigation Links */}
         <div className="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-wider text-slate-200">
-          <Link href="/user" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+          <Link href="/user" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-white">
             Home
           </Link>
-          <Link href="/user/deals" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740] flex items-center gap-1.5 text-sky-400">
+          <Link href="/user/deals" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-sky-400 flex items-center gap-1.5 text-sky-400">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Super Deals</span>
           </Link>
-          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-white">
             Featured Brands
           </Link>
-          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-white">
             Trending Crafts
           </Link>
-          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-[#002740]">
+          <Link href="/user/products" className="hover:text-white transition-colors py-3.5 border-b-2 border-transparent hover:border-white">
             Tech & Robotics
           </Link>
         </div>
